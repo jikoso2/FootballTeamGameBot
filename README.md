@@ -2,9 +2,12 @@
 
 Prepare to using bot:
 
--Download .exe
+-Download .exe - https://drive.google.com/drive/folders/1eBQxVoedWwFPOMfsEYj1QQajbwscC7a9?usp=sharing
+
 -rename configurationx.json.template to configuration1.json
+
 -fill important configuration email,password
+
 -to find fingerprint you have to press F12 and log-in, find 'login' request in Fetch/XHR : ![image](https://user-images.githubusercontent.com/69644118/233737515-f8eec456-3332-4f43-b30e-538449ee6b2b.png)
 
 

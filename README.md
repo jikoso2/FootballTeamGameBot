@@ -5,7 +5,8 @@ Prepare to using bot:
 -Download .exe
 -rename configurationx.json.template to configuration1.json
 -fill important configuration email,password
--to find fingerprint you have to press F12 and log-in, find 'login' request in Fetch/XHR : ![Screenshot 2023-04-21 231819](https://user-images.githubusercontent.com/69644118/233736443-90110ea0-82fe-4549-9729-41ad5cf077a9.png)
+-to find fingerprint you have to press F12 and log-in, find 'login' request in Fetch/XHR : ![image](https://user-images.githubusercontent.com/69644118/233737515-f8eec456-3332-4f43-b30e-538449ee6b2b.png)
+
 
 
 

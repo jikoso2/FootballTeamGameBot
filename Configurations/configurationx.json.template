@@ -1,0 +1,45 @@
+﻿{
+	"Email": "",
+	"Password": "",
+	"FingerPrint": "",
+	"Server": "pl",
+
+	"TrainingLimit": 3050,
+	"Training": {
+		"Skill": "defensive",
+		"Specialize": true,
+		"Learning": false,
+		"Training1": "first",
+		"Training2": "second",
+		"UseBot": true
+	},
+
+	"TrickLearn": false,
+	"Trick": "hokus",
+
+	"BetManager": true,
+	"BetMinCourse": 1.32,
+	"BetValue": 10000000,
+
+	"ClubTraining": true,
+	"ClubTrainingSkill": "playmaking",
+	"ClubEuroAutoTransfer": false,
+	"ClubMatchBooster": true,
+	"ClubBoosterSkill": "defensive",
+	"ClubBoosterLevel": 1,
+	"ClubBoosterEngagementLevel": 1,
+
+	"GetFreeStarter": true,
+	"GetFreeStarterEvent": true,
+
+	"CleanMailBox": true,
+
+	"EatFood": true,
+	"Cantinee": {
+		"Resolver": true,
+		"CalendarChecker": true,
+		"Jobs": true,
+		"GoldenBallsWarehouse": true,
+		"SellingItems": true
+	}
+}

@@ -2,12 +2,14 @@
 
 Prepare to using bot:
 
-*Download .exe
-*rename configurationx.json.template to configuration1.json
-*fill important configuration email,password
-*to find fingerprint you have to press F12 and log-in, find 'login' request in Fetch/XHR : ![Screenshot 2023-04-21 231819](https://user-images.githubusercontent.com/69644118/233736443-90110ea0-82fe-4549-9729-41ad5cf077a9.png)
+-Download .exe
+-rename configurationx.json.template to configuration1.json
+-fill important configuration email,password
+-to find fingerprint you have to press F12 and log-in, find 'login' request in Fetch/XHR : ![Screenshot 2023-04-21 231819](https://user-images.githubusercontent.com/69644118/233736443-90110ea0-82fe-4549-9729-41ad5cf077a9.png)
 
-*fill configuration:
+
+
+-fill configuration:
 
 -TrainingLimit - daily training limit (max)
 -Training - type of training - skill, specialize(100+),learning by boosters, Training1/2 - first,second,third,fourth(specialize),bot

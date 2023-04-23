@@ -18,12 +18,11 @@ Prepare to using application:
 * Start .exe and select number of configuration
 ![image](https://user-images.githubusercontent.com/69644118/233806073-f6b063cd-e536-40ab-b05e-f24b8822ba34.png)
 
-
 ### Log colours
-* Red - error and details
-* Violet - configuration (changed or initialize)
-* Green - account state
-* White - action performed by application
+* ![#f03c15](https://via.placeholder.com/15/f03c15/f03c15.png) Red - error and details
+* ![#C500C8](https://via.placeholder.com/15/c500c8/c500c8.png) Violet - configuration (changed or initialize)
+* ![#4DD11F](https://via.placeholder.com/15/4dd11f/4dd11f.png) Green - account state
+* ![#FFFFFF](https://via.placeholder.com/15/ffffff/ffffff.png) White - action performed by application
 
 ### How configure app
 ![image](https://user-images.githubusercontent.com/69644118/233806239-227f8eba-5650-46a5-be9c-01afc7b84fca.png)
@@ -93,6 +92,11 @@ Checks unfinished and complete daily quests to unlock meals.
 * Jobs - do 3 jobs
 * Goldenballswarehouse - donate 200 goldenballs to team warehouse
 * Sellingitems - 1 item for euro and 1 item for golden-balls - only poor items (you need have more than 1 poor item)
+
+
+#### Runtime configuration modification
+You can modify configuration during runtime application.
+![image](https://user-images.githubusercontent.com/69644118/233854495-1a272a0d-a14e-47d0-9f45-3c5be61debdb.png)
 
 ## Technologies
 

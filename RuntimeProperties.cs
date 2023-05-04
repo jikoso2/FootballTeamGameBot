@@ -36,6 +36,15 @@ namespace FootballteamBOT
 		private int trainingLimit;
 		public int TrainingLimit { get => trainingLimit; set => SetField(ref trainingLimit, value); }
 
+		private bool trainingCenterAfterLimit;
+		public bool TrainingCenterAfterLimit { get => trainingCenterAfterLimit; set => SetField(ref trainingCenterAfterLimit, value); }
+
+		private int trainingCenterAmount;
+		public int TrainingCenterAmount { get => trainingCenterAmount; set => SetField(ref trainingCenterAmount, value); }
+
+		private string trainingCenterSkill;
+		public string TrainingCenterSkill { get => trainingCenterSkill; set => SetField(ref trainingCenterSkill, value); }
+
 		public TrainingProperties Training { get; set; }
 		#endregion
 
@@ -167,6 +176,9 @@ namespace FootballteamBOT
 
 			private bool sellingItems;
 			public bool SellingItems { get => sellingItems; set => SetField(ref sellingItems, value); }
+
+			private bool donateItemWarehouse;
+			public bool DonateItemWarehouse { get => donateItemWarehouse; set => SetField(ref donateItemWarehouse, value); }
 		}
 	}
 }

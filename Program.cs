@@ -12,7 +12,7 @@ FtpApi.Login(RuntimeProps.Email, RuntimeProps.Password, RuntimeProps.FingerPrint
 
 //for (int i = 0; i < 10; i++)
 //{
-//	FTPApi.Enchanting(35225016);
+//	FtpApi.Enchanting(int);
 //	Thread.Sleep(1500);
 //}
 
@@ -20,19 +20,19 @@ while (true)
 {
 	SomethingDoneInLoop = false;
 	ReadRuntimeProperties();
-	var userState = FtpApi.GetUserState();
+	var accountState = FtpApi.GetAccountState();
 
-	if (userState.Overall == 0)
+	if (accountState.Overall == 0)
 	{
 		Thread.Sleep(50000);
 		FtpApi.Login(RuntimeProps.Email, RuntimeProps.Password, RuntimeProps.FingerPrint);
 		continue;
 	}
 
-	LogUserState(userState);
+	LogUserState(accountState);
 
 	if (RuntimeProps.Cantinee.Resolver)
-		CantineeTasksResolver(userState);
+		CantineeTasksResolver(accountState);
 
 	if (RuntimeProps.GetFreeStarter)
 		SomethingDoneInLoop |= FtpApi.GetFreeStarter();
@@ -43,39 +43,42 @@ while (true)
 	if (RuntimeProps.CleanMailBox)
 		SomethingDoneInLoop |= FtpApi.CleanMailBox();
 
-	if (RuntimeProps.ClubEuroAutoTransfer && userState.Team.Euro > 0)
-		SomethingDoneInLoop |= FtpApi.ClubTransferEuro(userState.TeamId, userState.Team.Euro);
+	if (RuntimeProps.ClubEuroAutoTransfer && accountState.Team.Euro > 0)
+		SomethingDoneInLoop |= FtpApi.ClubTransferEuro(accountState.TeamId, accountState.Team.Euro);
 
-	if (RuntimeProps.BetManager && userState.Bet.BetsLeft > 0)
-		SomethingDoneInLoop |= FtpApi.BetManager(userState.Bet.Matches, RuntimeProps.BetValue, RuntimeProps.BetMinCourse, userState);
+	if (RuntimeProps.BetManager && accountState.Bet.BetsLeft > 0)
+		SomethingDoneInLoop |= FtpApi.BetManager(accountState.Bet.Matches, RuntimeProps.BetValue, RuntimeProps.BetMinCourse, accountState);
 
-	if (RuntimeProps.TrickLearn && userState.Trick.Queue == null)
-		SomethingDoneInLoop |= FtpApi.LearnTrick(RuntimeProps.Trick, userState.Trick.Tricks);
+	if (RuntimeProps.TrickLearn && accountState.Trick.Queue == null)
+		SomethingDoneInLoop |= FtpApi.LearnTrick(RuntimeProps.Trick, accountState.Trick.Tricks);
 
-	if (RuntimeProps.EatFood && userState.Canteen.Queue == null)
-		FoodResolver(userState);
+	if (RuntimeProps.EatFood && accountState.Canteen.Queue == null)
+		FoodResolver(accountState);
 
-	if (RuntimeProps.TrainingLimit > userState.TrainedToday && userState.Energy > 100)
+	if (RuntimeProps.TrainingLimit > accountState.TrainedToday && accountState.Energy > 100)
 	{
 		if (RuntimeProps.Training.Specialize)
 		{
 			if (RuntimeProps.Training.UseBot)
-				SomethingDoneInLoop |= FtpApi.BotTrainingSpecialization(userState.Energy, RuntimeProps.Training.Learning, RuntimeProps.Training.Skill, RuntimeProps.Training.Training1, RuntimeProps.Training.Training2);
+				SomethingDoneInLoop |= FtpApi.BotTrainingSpecialization(accountState.Energy, RuntimeProps.Training.Learning, RuntimeProps.Training.Skill, RuntimeProps.Training.Training1, RuntimeProps.Training.Training2);
 			else
 				SomethingDoneInLoop |= FtpApi.TrainingSpecialization(10, RuntimeProps.Training.Learning, RuntimeProps.Training.Skill, RuntimeProps.Training.Training1, RuntimeProps.Training.Training2);
 		}
 		else
 			if (RuntimeProps.Training.UseBot)
-			SomethingDoneInLoop |= FtpApi.NormalBotTraining(userState.Energy);
+			SomethingDoneInLoop |= FtpApi.NormalBotTraining(accountState.Energy);
 		else
 			SomethingDoneInLoop |= FtpApi.NormalTraining(60);
 	}
 
-	if (RuntimeProps.ClubTraining && GetNowServerDataTime(userState.TimeZone).Hour >= userState.Team.TrainingHour && GetNowServerDataTime(userState.TimeZone).Hour < userState.Team.TrainingHour + 1)
-		SomethingDoneInLoop |= FtpApi.TeamTraining(userState.TeamId, RuntimeProps.ClubTrainingSkill);
+	if (RuntimeProps.ClubTraining && GetNowServerDataTime(accountState.TimeZone).Hour >= accountState.Team.TrainingHour && GetNowServerDataTime(accountState.TimeZone).Hour < accountState.Team.TrainingHour + 1)
+		SomethingDoneInLoop |= FtpApi.TeamTraining(accountState.TeamId, RuntimeProps.ClubTrainingSkill);
 
-	if (userState.Team.NextMatch != null && RuntimeProps.ClubMatchBooster)
-		SomethingDoneInLoop |= FtpApi.MatchBooster(userState.Team.NextMatch, RuntimeProps.ClubBoosterSkill, RuntimeProps.ClubBoosterLevel, RuntimeProps.ClubBoosterEngagementLevel);
+	if (accountState.Team.NextMatch != null && RuntimeProps.ClubMatchBooster)
+		SomethingDoneInLoop |= FtpApi.MatchBooster(accountState.Team.NextMatch, RuntimeProps.ClubBoosterSkill, RuntimeProps.ClubBoosterLevel, RuntimeProps.ClubBoosterEngagementLevel);
+
+	if (RuntimeProps.TrainingCenterAfterLimit && accountState.TrainingCenterUsedToday == 0 && accountState.TrainedToday > RuntimeProps.TrainingLimit)
+		SomethingDoneInLoop |= FtpApi.TrainingCenter(RuntimeProps.TrainingCenterSkill,RuntimeProps.TrainingCenterAmount);
 
 	if (!SomethingDoneInLoop)
 		Thread.Sleep(40000);
@@ -118,19 +121,25 @@ void CantineeTasksResolver(AccountState userState)
 
 			case "jobs":
 				Logger.LogI("JOBS - left to do", opName);
-				if (userState.Job.Queue == null && userState.Energy > 24 && RuntimeProps.Cantinee.Jobs)
+				if (RuntimeProps.Cantinee.Jobs && userState.Job.Queue == null && userState.Energy > 24)
 					SomethingDoneInLoop |= FtpApi.StartJob(7);
 				break;
 
 			case "golden_balls_warehouse":
 				Logger.LogI("GB-WAREHOUSE - left to do", opName);
 				if (RuntimeProps.Cantinee.GoldenBallsWarehouse)
-					SomethingDoneInLoop |= FtpApi.DonateWarehouse(userState.TeamId, "golden_balls", 200);
+					SomethingDoneInLoop |= FtpApi.DonateWarehouse(userState, "golden_balls");
+				break;
+
+			case "material_warehouse":
+				Logger.LogI("ITEM-WAREHOUSE - left to do", opName);
+				if (RuntimeProps.Cantinee.DonateItemWarehouse && userState.Item.ItemStats.Poor > 0)
+					SomethingDoneInLoop |= FtpApi.DonateWarehouse(userState, "items");
 				break;
 
 			case "sell_items_for_golden_balls":
 				Logger.LogI("SELL ITEM FOR GOLDEN BALL - left to do ", opName);
-				if (userState.Item.ItemStates.Poor > 1 && RuntimeProps.Cantinee.SellingItems)
+				if (RuntimeProps.Cantinee.SellingItems && userState.Item.ItemStats.Poor > 0)
 				{
 					var soldItem = FtpApi.SellWeakestItem(userState.Item.Items.Where(a => a.Rarity == "poor").ToArray(), true);
 					if (soldItem != null)
@@ -138,6 +147,7 @@ void CantineeTasksResolver(AccountState userState)
 						var list = userState.Item.Items.ToList();
 						list.Remove(soldItem);
 						userState.Item.Items = list.ToArray();
+						userState.Item.ItemStats.Poor -= 1;
 						SomethingDoneInLoop |= true;
 					}
 				}
@@ -145,7 +155,7 @@ void CantineeTasksResolver(AccountState userState)
 
 			case "sell_items_for_euro":
 				Logger.LogI("SELL ITEM FOR EURO - left to do", opName);
-				if (userState.Item.ItemStates.Poor > 1 && RuntimeProps.Cantinee.SellingItems)
+				if (RuntimeProps.Cantinee.SellingItems && userState.Item.ItemStats.Poor > 0)
 				{
 					var soldItem = FtpApi.SellWeakestItem(userState.Item.Items.Where(a => a.Rarity == "poor").ToArray());
 					if (soldItem != null)
@@ -153,6 +163,7 @@ void CantineeTasksResolver(AccountState userState)
 						var list = userState.Item.Items.ToList();
 						list.Remove(soldItem);
 						userState.Item.Items = list.ToArray();
+						userState.Item.ItemStats.Poor -= 1;
 						SomethingDoneInLoop |= true;
 					}
 				}
@@ -174,6 +185,8 @@ void FoodResolver(AccountState userState)
 
 	switch (mealLeft)
 	{
+		case 0:
+			return;
 		case 1:
 			if (GetNowServerDataTime(userState.TimeZone).Hour >= 18 || userState.Canteen.Used == 29)
 				SomethingDoneInLoop |= FtpApi.EatMeal(6);
@@ -249,8 +262,11 @@ public partial class Program
 			if (runtimePropsFromConfig != null)
 			{
 				RuntimeProps.Server = runtimePropsFromConfig.Server;
-				RuntimeProps.TrainingLimit = runtimePropsFromConfig.TrainingLimit;
 
+				RuntimeProps.TrainingLimit = runtimePropsFromConfig.TrainingLimit;
+				RuntimeProps.TrainingCenterAfterLimit = runtimePropsFromConfig.TrainingCenterAfterLimit;
+				RuntimeProps.TrainingCenterAmount = runtimePropsFromConfig.TrainingCenterAmount;
+				RuntimeProps.TrainingCenterSkill = runtimePropsFromConfig.TrainingCenterSkill;
 				RuntimeProps.Training.UseBot = runtimePropsFromConfig.Training.UseBot;
 				RuntimeProps.Training.Training1 = runtimePropsFromConfig.Training.Training1;
 				RuntimeProps.Training.Training2 = runtimePropsFromConfig.Training.Training2;
@@ -285,6 +301,7 @@ public partial class Program
 				RuntimeProps.Cantinee.Jobs = runtimePropsFromConfig.Cantinee.Jobs;
 				RuntimeProps.Cantinee.SellingItems = runtimePropsFromConfig.Cantinee.SellingItems;
 				RuntimeProps.Cantinee.GoldenBallsWarehouse = runtimePropsFromConfig.Cantinee.GoldenBallsWarehouse;
+				RuntimeProps.Cantinee.DonateItemWarehouse = runtimePropsFromConfig.Cantinee.DonateItemWarehouse;
 			}
 			else
 				throw new ArgumentException("Runtimeproperties doesn't exist.");

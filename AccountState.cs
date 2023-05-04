@@ -19,6 +19,7 @@ namespace FootballteamBOT
 		public int Overall { get; set; }
 		public int TrainedToday { get; set; }
 		public int TeamId { get; set; }
+		public int TrainingCenterUsedToday { get; set; }
 		public bool CalendarFinished { get; set; }
 		public TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
 		public CanteenState Canteen { get; set; } = new CanteenState();
@@ -63,7 +64,7 @@ namespace FootballteamBOT
 
 	public class ItemState
 	{
-		public Items_Stats ItemStates { get; set; } = new();
+		public Items_Stats ItemStats { get; set; } = new();
 		public Item[] Items { get; set; } = Array.Empty<Item>();
 	}
 

@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Globalization;
-using regular = System.Text.RegularExpressions;
+using RegularExp = System.Text.RegularExpressions;
 
 using TimeZoneConverter;
 
@@ -11,10 +11,11 @@ using static FootballteamBOT.ApiHelper.FTPContracts.ItemsResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.MatchesResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.TricksResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.TeamResponse;
+using System.Xml.Linq;
 
 namespace FootballteamBOT.ApiHelper
 {
-	public class FTPApi
+	public partial class FTPApi
 	{
 		public FTPApi(string server, int configurationNumber)
 		{
@@ -35,6 +36,7 @@ namespace FootballteamBOT.ApiHelper
 		public int dayFreeStarterEvent = 0;
 		public int dayClubTraining = 0;
 		public int hourCalendar = 0;
+		public int salaryTeamDay = 0;
 		public List<long> doneMatches = new();
 
 
@@ -146,7 +148,7 @@ namespace FootballteamBOT.ApiHelper
 			HttpClient.DefaultRequestHeaders.Add("sec-ch-ua-platform", "Windows");
 		}
 
-		public AccountState GetUserState()
+		public AccountState GetAccountState()
 		{
 			try
 			{
@@ -155,7 +157,7 @@ namespace FootballteamBOT.ApiHelper
 					var response = SendGetReq($"{FTPEndpoint}/user");
 					var userGetResponse = DeserializeJson<UserResponse>(response);
 
-					var userState = new AccountState()
+					var accountState = new AccountState()
 					{
 						Name = userGetResponse.User.Name,
 						Euro = userGetResponse.User.Euro,
@@ -173,55 +175,58 @@ namespace FootballteamBOT.ApiHelper
 					var canteenResponse = SendGetReq($"{FTPEndpoint}/canteen");
 					var canteenGetResponse = DeserializeJson<CanteenResponse>(canteenResponse);
 
-					userState.Canteen.Limit = canteenGetResponse.Current_limit;
-					userState.Canteen.MaxLimit = canteenGetResponse.Max_limit;
-					userState.Canteen.Used = canteenGetResponse.Used;
-					userState.Canteen.Queue = canteenGetResponse.Queue;
-					userState.Canteen.CanteenTasks = canteenGetResponse.Limits;
+					accountState.Canteen.Limit = canteenGetResponse.Current_limit;
+					accountState.Canteen.MaxLimit = canteenGetResponse.Max_limit;
+					accountState.Canteen.Used = canteenGetResponse.Used;
+					accountState.Canteen.Queue = canteenGetResponse.Queue;
+					accountState.Canteen.CanteenTasks = canteenGetResponse.Limits;
 
 					var packsResponse = SendGetReq($"{FTPEndpoint}/character/packs");
 					var packsGetResponse = DeserializeJson<PacksResponse>(packsResponse);
 
-					userState.Packs.Bronze = packsGetResponse.Packs.Bronze;
-					userState.Packs.Energy = packsGetResponse.Packs.Energetic_locked;
-					userState.Packs.Gold = packsGetResponse.Packs.Gold;
-					userState.Packs.Silver = packsGetResponse.Packs.Silver;
-					userState.Packs.FreeKeys = packsGetResponse.Free_keys;
-					userState.Packs.PremiumKeys = packsGetResponse.Keys;
-					userState.Packs.KeyMultiplier = packsGetResponse.Key_multiplier;
+					accountState.Packs.Bronze = packsGetResponse.Packs.Bronze;
+					accountState.Packs.Energy = packsGetResponse.Packs.Energetic_locked;
+					accountState.Packs.Gold = packsGetResponse.Packs.Gold;
+					accountState.Packs.Silver = packsGetResponse.Packs.Silver;
+					accountState.Packs.FreeKeys = packsGetResponse.Free_keys;
+					accountState.Packs.PremiumKeys = packsGetResponse.Keys;
+					accountState.Packs.KeyMultiplier = packsGetResponse.Key_multiplier;
 
 					var tricksResponse = SendGetReq($"{FTPEndpoint}/training/tricks");
 					var tricksGetResponse = DeserializeJson<TricksResponse>(tricksResponse);
 
-					userState.Trick.Tricks = tricksGetResponse.Tricks;
-					userState.Trick.Queue = tricksGetResponse.Queue;
+					accountState.Trick.Tricks = tricksGetResponse.Tricks;
+					accountState.Trick.Queue = tricksGetResponse.Queue;
 
 					var jobResponse = SendGetReq($"{FTPEndpoint}/jobs");
 					var jobGetResponse = DeserializeJson<JobsResponse>(jobResponse);
 
-					userState.Job.Queue = jobGetResponse.Queue;
+					accountState.Job.Queue = jobGetResponse.Queue;
 
 					var itemsResponse = SendGetReq($"{FTPEndpoint}/character/items");
 					var itemsGetResponse = DeserializeJson<ItemsResponse>(itemsResponse);
 
-					userState.Item.Items = itemsGetResponse.Items;
-					userState.Item.ItemStates = itemsGetResponse.Items_stats;
+					accountState.Item.Items = itemsGetResponse.Items;
+					var balls = itemsGetResponse.Items.Where(a => a.Name.Equals("Piłka Sukcesu") || a.Name.Equals("Ball of Success")).ToList();
+					accountState.Item.ItemStats = itemsGetResponse.Items_stats;
+					accountState.Item.Items = accountState.Item.Items.ToList().Except(balls).ToArray();
+					accountState.Item.ItemStats.Poor -= balls.Count;
 
 					var matchesResponse = SendGetReq($"{FTPEndpoint}/games/bets");
 
 					try
 					{
-						var matchesGetResponse = DeserializeJson<MatchesResponse>(matchesResponse);
-						userState.Bet.BetsLeft = matchesGetResponse.Left_bets;
-						userState.Bet.BetsMax = matchesGetResponse.Max_bet;
-						userState.Bet.Matches = matchesGetResponse.Matches.Select(a => a.Value).ToArray();
+						var matchesGetResponse1 = DeserializeJson<MatchesResponse>(matchesResponse);
+						accountState.Bet.BetsLeft = matchesGetResponse1.Left_bets;
+						accountState.Bet.BetsMax = matchesGetResponse1.Max_bet;
+						accountState.Bet.Matches = matchesGetResponse1.Matches.Select(a => a.Value).ToArray();
 					}
 					catch (JsonException)
 					{
 						var matchesGetResponse2 = DeserializeJson<MatchesResponse2>(matchesResponse);
-						userState.Bet.BetsLeft = matchesGetResponse2.Left_bets;
-						userState.Bet.BetsMax = matchesGetResponse2.Max_bet;
-						userState.Bet.Matches = matchesGetResponse2.Matches;
+						accountState.Bet.BetsLeft = matchesGetResponse2.Left_bets;
+						accountState.Bet.BetsMax = matchesGetResponse2.Max_bet;
+						accountState.Bet.Matches = matchesGetResponse2.Matches;
 					}
 					catch (Exception) { }
 
@@ -234,8 +239,8 @@ namespace FootballteamBOT.ApiHelper
 						totalProfit -= totalLose;
 						var todayPoints = betsStatsGetResponse.Bets.Where(a => a.Value.ParsedDateTime.DayOfYear == DateTime.Today.DayOfYear && a.Value.Status != null && a.Value.Status == "won").Select(a => a.Value.Course).Sum();
 
-						userState.Bet.DayPoints = todayPoints;
-						userState.Bet.DayProfit = (long)totalProfit;
+						accountState.Bet.DayPoints = todayPoints;
+						accountState.Bet.DayProfit = (long)totalProfit;
 					}
 					catch (JsonException)
 					{
@@ -245,23 +250,23 @@ namespace FootballteamBOT.ApiHelper
 						totalProfit -= totalLose;
 						var todayPoints = betsStatsGetResponse.Bets.Where(a => a.ParsedDateTime.DayOfYear == DateTime.Today.DayOfYear && a.Status != null && a.Status == "won").Select(a => a.Course).Sum();
 
-						userState.Bet.DayPoints = todayPoints;
-						userState.Bet.DayProfit = (long)totalProfit;
+						accountState.Bet.DayPoints = todayPoints;
+						accountState.Bet.DayProfit = (long)totalProfit;
 					}
 					catch (Exception) { }
 
-					var teamStatsResponse = SendGetReq($"{FTPEndpoint}/teams/{userState.TeamId}");
+					var teamStatsResponse = SendGetReq($"{FTPEndpoint}/teams/{accountState.TeamId}");
 					var teamStatsGetResponse = DeserializeJson<TeamResponse>(teamStatsResponse);
 
-					userState.Team.Euro = teamStatsGetResponse.Team.Euro;
-					userState.Team.EuroBuilding = teamStatsGetResponse.Team.Euro_building;
-					userState.Team.Name = teamStatsGetResponse.Team.Name;
-					userState.Team.Ovr = teamStatsGetResponse.Team.Ovr;
-					userState.Team.TrainingHour = teamStatsGetResponse.Team.Training_hour;
+					accountState.Team.Euro = teamStatsGetResponse.Team.Euro;
+					accountState.Team.EuroBuilding = teamStatsGetResponse.Team.Euro_building;
+					accountState.Team.Name = teamStatsGetResponse.Team.Name;
+					accountState.Team.Ovr = teamStatsGetResponse.Team.Ovr;
+					accountState.Team.TrainingHour = teamStatsGetResponse.Team.Training_hour;
 
 					try
 					{
-						userState.Team.NextMatch = teamStatsGetResponse.Timetable.Values.SelectMany(a => a).ToList().FirstOrDefault(a => DateTime.Parse(a.Start_date).AddMinutes(35) > DateTime.Now && DateTime.Parse(a.Start_date).AddMinutes(1) < DateTime.Now);
+						accountState.Team.NextMatch = teamStatsGetResponse.Timetable.Values.SelectMany(a => a).ToList().FirstOrDefault(a => DateTime.Parse(a.Start_date).AddMinutes(35) > DateTime.Now && DateTime.Parse(a.Start_date).AddMinutes(1) < DateTime.Now);
 					}
 					catch (Exception) { }
 
@@ -269,14 +274,19 @@ namespace FootballteamBOT.ApiHelper
 					var calendarResponse = SendGetReq($"{FTPEndpoint}/calendar");
 					var calendarGetResponse = DeserializeJson<CalendarResponse>(calendarResponse);
 
-					userState.CalendarFinished = calendarGetResponse.Today_challenge.Details.Finished;
+					accountState.CalendarFinished = calendarGetResponse.Today_challenge.Details.Finished;
 
-					return userState;
+					var centerResponse = SendGetReq($"{FTPEndpoint}/training/center");
+					var centerGetResponse = DeserializeJson<CenterResponse>(centerResponse);
+
+					accountState.TrainingCenterUsedToday = centerGetResponse.Used_Today;
+
+					return accountState;
 				}
 			}
 			catch (Exception ex)
 			{
-				Logger.LogE(ex.ToString(), "USER-STATE");
+				Logger.LogE(ex.ToString(), "ACCOUNT-STATE");
 				return new AccountState();
 			}
 		}
@@ -348,7 +358,7 @@ namespace FootballteamBOT.ApiHelper
 				{
 					Logger.LogD("Starting BOT normal training", opName);
 
-					var botTrainingReq1 = new { skill = Enum.GetName(typeof(TrainingType), trainings[0][1] ), minutes = 5 };
+					var botTrainingReq1 = new { skill = Enum.GetName(typeof(TrainingType), trainings[0][1]), minutes = 5 };
 					var trainingResult1 = SendSpecPostReq($"{FTPEndpoint}/training/bot/normal", botTrainingReq1);
 
 					var botTrainingReq2 = new { skill = Enum.GetName(typeof(TrainingType), trainings[1][1]), minutes = 5 };
@@ -605,7 +615,7 @@ namespace FootballteamBOT.ApiHelper
 				if (dayTricks != DateTime.Now.Day)
 				{
 					SendPostReq($"{FTPEndpoint}/training/tricks", trickRequest);
-					var logFactor = String.Join(",", factors);
+					var logFactor = string.Join(",", factors);
 					Logger.LogD($"Starting learn trick: {trickRequest.trick}. Factors: [{logFactor}]", "TRICKS");
 					return true;
 				}
@@ -647,7 +657,7 @@ namespace FootballteamBOT.ApiHelper
 					}
 					else
 					{
-						var number = int.Parse(regular.Regex.Matches(splitedString[i], @"\d+").Last().ToString());
+						var number = int.Parse(MessageRegex().Matches(splitedString[i]).Last().ToString());
 
 						if (FTPServer == "pl")
 						{
@@ -733,7 +743,7 @@ namespace FootballteamBOT.ApiHelper
 				var sellItemRequest = new { items = items.Select(a => a.Id).ToArray() };
 				var forBallsAddon = forBalls ? "-golden-balls" : "";
 				SendPostReq($"{FTPEndpoint}/character/items/sell{forBallsAddon}", sellItemRequest);
-				Logger.LogD($"Selling item: {String.Join(',', items.Select(a => a.Name))}", opName);
+				Logger.LogD($"Selling item: {string.Join(',', items.Select(a => a.Name))}", opName);
 				return true;
 			}
 			catch (NullReferenceException)
@@ -765,7 +775,7 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool BetManager(Match[] matches, long maxBetAmount, double minBetCourse, AccountState userState)
+		public bool BetManager(Match[] matches, long maxBetAmount, double minBetCourse, AccountState accState)
 		{
 			var opName = "BETS";
 			var result = false;
@@ -774,16 +784,16 @@ namespace FootballteamBOT.ApiHelper
 			{
 				foreach (var match in matches)
 				{
-					if (userState.Bet.BetsLeft == 0)
+					if (accState.Bet.BetsLeft == 0)
 						break;
 
-					if (userState.Euro < maxBetAmount * 2)
+					if (accState.Euro < maxBetAmount * 2)
 					{
 						Logger.LogW($"You don't have euros to betting (condition: maxBet * 2 < totalEuros)", opName);
 						break;
 					}
 
-					if (userState.TeamId == match.Guest.Id || userState.TeamId == match.Host.Id)
+					if (accState.TeamId == match.Guest.Id || accState.TeamId == match.Host.Id)
 						continue;
 
 					var totalOVR = match.Guest.Ovr + match.Host.Ovr * 1.05;
@@ -806,8 +816,8 @@ namespace FootballteamBOT.ApiHelper
 							SendPostReq($"{FTPEndpoint}/games/bets", betRequest);
 
 							Logger.LogD($"Betting {betRequest.type} for {betRequest.euro}, course: {betCourse}, match: {match.Id} ({match.Host.Name} - {match.Guest.Name})", opName);
-							userState.Bet.BetsLeft -= 1;
-							userState.Euro -= maxBetAmount;
+							accState.Bet.BetsLeft -= 1;
+							accState.Euro -= maxBetAmount;
 							result |= true;
 							Thread.Sleep(4000);
 						}
@@ -866,7 +876,7 @@ namespace FootballteamBOT.ApiHelper
 			{
 				if (DateTime.Now.Day != dayFreeStarter)
 				{
-					var result = SendSpecPostReq($"{FTPEndpoint}/shop/starters-free", new Object());
+					var result = SendSpecPostReq($"{FTPEndpoint}/shop/starters-free", new object());
 					dayFreeStarter = DateTime.Now.Day;
 
 					if (result.Item2 == HttpStatusCode.OK)
@@ -896,7 +906,7 @@ namespace FootballteamBOT.ApiHelper
 			{
 				if (DateTime.Now.Day != dayFreeStarterEvent)
 				{
-					var result = SendSpecPostReq($"{FTPEndpoint}/shop/event-packs", new Object());
+					var result = SendSpecPostReq($"{FTPEndpoint}/shop/event-packs", new object());
 					dayFreeStarterEvent = DateTime.Now.Day;
 
 					if (result.Item2 == HttpStatusCode.OK)
@@ -954,18 +964,37 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool DonateWarehouse(int teamId, string type, int amount)
+		public bool DonateWarehouse(AccountState accState, string type)
 		{
 			var opName = "DONATE-TEAM";
 			try
 			{
-				lock (httpClientSemaphore)
+				if (type == "golden_balls")
 				{
-					var donateRequest = new { amount = amount.ToString(), type };
-					var result = SendSpecPostReq($"{FTPEndpoint}/teams/{teamId}/warehouse", donateRequest);
+					var donateRequest = new { amount = 200, type };
+					var result = SendSpecPostReq($"{FTPEndpoint}/teams/{accState.TeamId}/warehouse", donateRequest);
 					Logger.LogD($"{NodeParse(result)}", opName);
 					return true;
 				}
+				else if (type == "items")
+				{
+					var itemToSell = accState.Item.Items.Where(a => a.Rarity == "poor").MinBy(a => a.Bonus);
+					if (itemToSell != null)
+					{
+						var donateRequest = new { ids = new long[] { itemToSell.Id }, type };
+						var result = SendSpecPostReq($"{FTPEndpoint}/teams/{accState.TeamId}/warehouse", donateRequest);
+
+						accState.Item.ItemStats.Poor -= 1;
+						var list = accState.Item.Items.ToList();
+						list.Remove(itemToSell);
+						accState.Item.Items = list.ToArray();
+
+						Logger.LogD($"{NodeParse(result)}", opName);
+						return true;
+					}
+				}
+
+				return false;
 			}
 			catch (Exception ex)
 			{
@@ -1014,5 +1043,30 @@ namespace FootballteamBOT.ApiHelper
 			}
 			return false;
 		}
+
+		public bool TrainingCenter(string skill, int amount)
+		{
+			var opName = "TRAINING-CENTER";
+			var trainingCenterRequest = new { skill,amount };
+			var result = SendSpecPostReq($"{FTPEndpoint}/training/center-specialization", trainingCenterRequest);
+			Logger.LogD($"{NodeParse(result)}", opName);
+			return true;
+		}
+
+		public bool GetSalaryTeam(int teamId)
+		{
+			var opName = "TEAM-SALARY";
+			if (salaryTeamDay != DateTime.Now.Day)
+			{
+				var result = SendSpecPostReq($"{FTPEndpoint}/teams/38349/accounting/salary", new object());
+				Logger.LogD($"{NodeParse(result)}", opName);
+				salaryTeamDay = DateTime.Now.Day;
+				return true;
+			}
+			return false;
+		}
+
+		[RegularExp.GeneratedRegex("\\d+")]
+		private static partial RegularExp.Regex MessageRegex();
 	}
 }

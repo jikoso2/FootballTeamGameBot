@@ -218,6 +218,7 @@ namespace FootballteamBOT.ApiHelper
 				public long Id { get; set; }
 				public string Name { get; set; } = string.Empty;
 				public string Rarity { get; set; } = string.Empty;
+				public string Type { get; set; } = string.Empty;
 			}
 		}
 
@@ -257,6 +258,40 @@ namespace FootballteamBOT.ApiHelper
 
 		}
 
+		[JsonDerivedType(typeof(PossibleMatchBetsResponseList), 2)]
+		[JsonDerivedType(typeof(PossibleMatchBetsResponseDict), 1)]
+		[JsonDerivedType(typeof(PossibleMatchBetsResponseBase), 0)]
+		public class PossibleMatchBetsResponseBase
+		{
+			public PossibleMatchBetsResponseBase()
+			{
+			}
+
+			public long Max_bet { get; set; }
+			public int Left_bets { get; set; }
+			//public IEnumerable<Match> Items { get; set; }
+		}
+
+		public class PossibleMatchBetsResponseDict : PossibleMatchBetsResponseBase, IPossibleMatchBetsResponse
+		{
+			public IDictionary<int, Match> Matches { get; set; }
+
+			public IEnumerable<Match> Items => Matches?.Values;
+		}
+
+		public class PossibleMatchBetsResponseList : PossibleMatchBetsResponseBase, IPossibleMatchBetsResponse
+		{
+			public IEnumerable<Match> Matches { get; set; }
+
+			public IEnumerable<Match> Items => Matches;
+		}
+
+		public interface IPossibleMatchBetsResponse
+		{
+			public long Max_bet { get; set; }
+			public int Left_bets { get; set; }
+			public IEnumerable<Match> Items { get; }
+		}
 
 		public class BetResponse
 		{
@@ -278,7 +313,7 @@ namespace FootballteamBOT.ApiHelper
 
 		public class MailboxResponse
 		{
-			public Mail[] Mailbox { get; set; } = Array.Empty<Mail>();
+			public IEnumerable<Mail> Mailbox { get; set; } = Array.Empty<Mail>();
 
 			public class Mail
 			{
@@ -370,6 +405,11 @@ namespace FootballteamBOT.ApiHelper
 					public bool Finished { get; set; }
 				}
 			}
+		}
+
+		public class CenterResponse
+		{
+			public int Used_Today { get; set; } = -1;
 		}
 	}
 }

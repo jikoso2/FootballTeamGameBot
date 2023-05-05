@@ -255,21 +255,23 @@ namespace FootballteamBOT.ApiHelper
 					}
 					catch (Exception) { }
 
-					var teamStatsResponse = SendGetReq($"{FTPEndpoint}/teams/{accountState.TeamId}");
-					var teamStatsGetResponse = DeserializeJson<TeamResponse>(teamStatsResponse);
-
-					accountState.Team.Euro = teamStatsGetResponse.Team.Euro;
-					accountState.Team.EuroBuilding = teamStatsGetResponse.Team.Euro_building;
-					accountState.Team.Name = teamStatsGetResponse.Team.Name;
-					accountState.Team.Ovr = teamStatsGetResponse.Team.Ovr;
-					accountState.Team.TrainingHour = teamStatsGetResponse.Team.Training_hour;
-
-					try
+					if (accountState.TeamId != 0)
 					{
-						accountState.Team.NextMatch = teamStatsGetResponse.Timetable.Values.SelectMany(a => a).ToList().FirstOrDefault(a => DateTime.Parse(a.Start_date).AddMinutes(35) > DateTime.Now && DateTime.Parse(a.Start_date).AddMinutes(1) < DateTime.Now);
-					}
-					catch (Exception) { }
+						var teamStatsResponse = SendGetReq($"{FTPEndpoint}/teams/{accountState.TeamId}");
+						var teamStatsGetResponse = DeserializeJson<TeamResponse>(teamStatsResponse);
 
+						accountState.Team.Euro = teamStatsGetResponse.Team.Euro;
+						accountState.Team.EuroBuilding = teamStatsGetResponse.Team.Euro_building;
+						accountState.Team.Name = teamStatsGetResponse.Team.Name;
+						accountState.Team.Ovr = teamStatsGetResponse.Team.Ovr;
+						accountState.Team.TrainingHour = teamStatsGetResponse.Team.Training_hour;
+
+						try
+						{
+							accountState.Team.NextMatch = teamStatsGetResponse.Timetable.Values.SelectMany(a => a).ToList().FirstOrDefault(a => DateTime.Parse(a.Start_date).AddMinutes(35) > DateTime.Now && DateTime.Parse(a.Start_date).AddMinutes(1) < DateTime.Now);
+						}
+						catch (Exception) { }
+					}
 
 					var calendarResponse = SendGetReq($"{FTPEndpoint}/calendar");
 					var calendarGetResponse = DeserializeJson<CalendarResponse>(calendarResponse);
@@ -1047,18 +1049,18 @@ namespace FootballteamBOT.ApiHelper
 		public bool TrainingCenter(string skill, int amount)
 		{
 			var opName = "TRAINING-CENTER";
-			var trainingCenterRequest = new { skill,amount };
+			var trainingCenterRequest = new { skill, amount };
 			var result = SendSpecPostReq($"{FTPEndpoint}/training/center-specialization", trainingCenterRequest);
 			Logger.LogD($"{NodeParse(result)}", opName);
 			return true;
 		}
 
-		public bool GetSalaryTeam(int teamId)
+		public bool GetSalaryFromTeam(int teamId)
 		{
 			var opName = "TEAM-SALARY";
 			if (salaryTeamDay != DateTime.Now.Day)
 			{
-				var result = SendSpecPostReq($"{FTPEndpoint}/teams/38349/accounting/salary", new object());
+				var result = SendSpecPostReq($"{FTPEndpoint}/teams/{teamId}/accounting/salary", new object());
 				Logger.LogD($"{NodeParse(result)}", opName);
 				salaryTeamDay = DateTime.Now.Day;
 				return true;

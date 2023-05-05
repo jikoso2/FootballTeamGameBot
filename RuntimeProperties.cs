@@ -91,6 +91,11 @@ namespace FootballteamBOT
 
 		private int clubBoosterEngagementLevel;
 		public int ClubBoosterEngagementLevel { get => clubBoosterEngagementLevel; set => SetField(ref clubBoosterEngagementLevel, value); }
+
+		private bool clubSalary;
+		public bool ClubSalary { get => clubSalary; set => SetField(ref clubSalary, value); }
+
+
 		#endregion
 
 

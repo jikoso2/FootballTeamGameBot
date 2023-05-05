@@ -80,6 +80,9 @@ while (true)
 	if (RuntimeProps.TrainingCenterAfterLimit && accountState.TrainingCenterUsedToday == 0 && accountState.TrainedToday > RuntimeProps.TrainingLimit)
 		SomethingDoneInLoop |= FtpApi.TrainingCenter(RuntimeProps.TrainingCenterSkill,RuntimeProps.TrainingCenterAmount);
 
+	if(RuntimeProps.ClubSalary)
+		SomethingDoneInLoop |= FtpApi.GetSalaryFromTeam(accountState.TeamId);
+
 	if (!SomethingDoneInLoop)
 		Thread.Sleep(40000);
 }
@@ -288,6 +291,7 @@ public partial class Program
 				RuntimeProps.ClubBoosterSkill = runtimePropsFromConfig.ClubBoosterSkill;
 				RuntimeProps.ClubBoosterLevel = runtimePropsFromConfig.ClubBoosterLevel;
 				RuntimeProps.ClubBoosterEngagementLevel = runtimePropsFromConfig.ClubBoosterEngagementLevel;
+				RuntimeProps.ClubSalary = runtimePropsFromConfig.ClubSalary;
 
 				RuntimeProps.GetFreeStarter = runtimePropsFromConfig.GetFreeStarter;
 				RuntimeProps.GetFreeStarterEvent = runtimePropsFromConfig.GetFreeStarterEvent;

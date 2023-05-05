@@ -13,6 +13,9 @@
 		"Training2": "second",
 		"UseBot": true
 	},
+	"TrainingCenterAfterLimit": true,
+	"TrainingCenterAmount": 500,
+	"TrainingCenterSkill": "condition_first",
 
 	"TrickLearn": false,
 	"Trick": "hokus",
@@ -28,6 +31,7 @@
 	"ClubBoosterSkill": "defensive",
 	"ClubBoosterLevel": 1,
 	"ClubBoosterEngagementLevel": 1,
+	"ClubSalary": true,
 
 	"GetFreeStarter": true,
 	"GetFreeStarterEvent": true,
@@ -40,6 +44,7 @@
 		"CalendarChecker": true,
 		"Jobs": true,
 		"GoldenBallsWarehouse": true,
-		"SellingItems": true
+		"SellingItems": true,
+		"DonateItemWarehouse": true
 	}
 }

@@ -85,6 +85,7 @@ namespace FootballteamBOT
 		public int TrainingHour { get; set; }
 		public long EuroBuilding { get; set; }
 		public TeamMatch? NextMatch { get; set; }
+		public bool ContractSalary { get; set; }
 	}
 }
 

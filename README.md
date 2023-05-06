@@ -12,7 +12,7 @@ The user can use several accounts on many servers in parallel.
 
 ## Guide
 Prepare to using application:
-* Download all files (.exe and configurations + trickFile) - https://drive.google.com/drive/folders/1eBQxVoedWwFPOMfsEYj1QQajbwscC7a9?usp=sharing
+* Download all files (.exe and configurations + trickFile) - https://github.com/jikoso2/FootballTeamGameBot/tree/main/ExeFile
 * Rename configurationx.json.template to configuration{x}.json (where {x} is a number, default : 1)
 * Fill configuration in .json
 * Start .exe and select number of configuration
@@ -25,7 +25,7 @@ Prepare to using application:
 * ![#FFFFFF](https://via.placeholder.com/15/ffffff/ffffff.png) White - action performed by application
 
 ### How configure app
-![image](https://user-images.githubusercontent.com/69644118/233806239-227f8eba-5650-46a5-be9c-01afc7b84fca.png)
+![image](https://user-images.githubusercontent.com/69644118/236612244-5956a707-6eed-47dc-9762-f2a08e550c68.png)
 
 * Email - account email
 * Password - account password
@@ -39,6 +39,9 @@ Prepare to using application:
   * Training1 - first skill to train (first,second,third,fourth)
   * Training2 - second skill to train (first,second,third,fourth)
   * UseBot - (true,false)
+* TrainingCenterAfterLimit - use training center after reach training limit
+* TrainingCenterAmount - amount in center training (500,300,200,100)
+* TrainingCenterSkill - skill to training in center
 * TrickLearn - activate trick module (true,false)
 * Trick - select trick to training
 * BetManager - activate bet manager
@@ -92,6 +95,7 @@ Checks unfinished and complete daily quests to unlock meals.
 * Jobs - do 3 jobs
 * Goldenballswarehouse - donate 200 goldenballs to team warehouse
 * Sellingitems - 1 item for euro and 1 item for golden-balls - only poor items (you need have more than 1 poor item)
+* DonateItemWarehouse - if possible, donate warehouse using the weakest item in equipment (only poor items)
 
 
 #### Runtime configuration modification

@@ -25,7 +25,7 @@ Prepare to using application:
 * ![#FFFFFF](https://via.placeholder.com/15/ffffff/ffffff.png) White - action performed by application
 
 ### How configure app
-![image](https://user-images.githubusercontent.com/69644118/236612244-5956a707-6eed-47dc-9762-f2a08e550c68.png)
+![image]![image](https://github.com/jikoso2/FootballTeamGameBot/assets/69644118/51f34d5c-c3a2-41a9-9e98-f716c63a93d6)
 
 * Email - account email
 * Password - account password
@@ -54,6 +54,7 @@ Prepare to using application:
 * ClubBoosterSkill - select skill to boost
 * ClubBoosterLevel - level of booster (more than 1 have energy cost)
 * ClubBoosterEngagementLevel - level of engagement booster (more than 1 have health cost) - sparing matches set auto 5 level
+* ClubMessageNotification - auto message sender to club (while starting match or starting club training)
 * GetFreeStarter - get starter(daily) (true,false)
 * GetFreeStarterEvent - get event starter(daily) (true,false)
 * CleanMailBox - clean training bot notifications

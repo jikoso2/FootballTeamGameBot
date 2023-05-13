@@ -686,7 +686,7 @@ namespace FootballteamBOT.ApiHelper
 
 		public List<int> AllPosibilities = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
-		public bool TeamTraining(int teamId, string skill)
+		public bool TeamTraining(int teamId, string skill, bool notification)
 		{
 			var opName = "TEAM-TRAINING";
 			try
@@ -697,6 +697,10 @@ namespace FootballteamBOT.ApiHelper
 					SendPostReq($"{FTPEndpoint}/teams/{teamId}/training", teamTrainingRequest);
 					Logger.LogD($"You signed up for club training, skill: {skill}", opName);
 					dayClubTraining = DateTime.Now.Day;
+
+					if (notification)
+						SendClubNotification("Zapraszam na trening klubowy, który właśnie się rozpoczyna.", teamId);
+
 					return true;
 				}
 				else
@@ -834,17 +838,23 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool Enchanting(int itemid)
+		public EnchantCostResponse GetItemInfo(int itemid)
+		{
+			var resultItemInfo = DeserializeJson<EnchantCostResponse>(SendGetReq($"{FTPEndpoint}/character/enchanting/{itemid}"));
+			return resultItemInfo;
+		}
+
+		public bool Enchanting(int itemid, EnchantCostResponse enchantCostResponse)
 		{
 			var opName = "ENCHANTING";
 			try
 			{
-				var resultItemInfo = DeserializeJson<EnchantCostResponse>(SendGetReq($"{FTPEndpoint}/character/enchanting/{itemid}"));
-				Logger.LogI($"Enchanting item level: {resultItemInfo.Level},bonus: {resultItemInfo.Bonus}", opName);
+				Logger.LogI($"Enchanting item level: {enchantCostResponse.Level},bonus: {enchantCostResponse.Bonus}", opName);
 
 				var enchantingRequest = new { special_item_id = 0, use_golden_balls = 0 };
 				var resultEnchanting = SendSpecPostReq($"{FTPEndpoint}/character/enchanting/{itemid}", enchantingRequest);
-				Logger.LogI($"Cost: {resultItemInfo.Cost}, result: {resultEnchanting.Item1}", opName);
+
+				Logger.LogI($"Cost: {enchantCostResponse.Cost}, result: {resultEnchanting.Item1}", opName);
 				return true;
 			}
 			catch (Exception ex)
@@ -1005,67 +1015,119 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool MatchBooster(TeamMatch match, string skill, int levelGameStyle, int levelEngagement)
+		public bool MatchBooster(TeamMatch match, string skill, int levelGameStyle, int levelEngagement, bool notification, int teamId)
 		{
 			var opName = "MATCH-TEAM";
-
-			if (!doneMatches.Contains(match.Id))
+			try
 			{
-				var changeGameStyleRequest = new { level = levelGameStyle, style = skill };
-				var result1 = SendSpecPostReq($"{FTPEndpoint}/match/{match.Id}/change-game-style", changeGameStyleRequest);
+				if (!doneMatches.Contains(match.Id))
+				{
+					var changeGameStyleRequest = new { level = levelGameStyle, style = skill };
+					var result1 = SendSpecPostReq($"{FTPEndpoint}/match/{match.Id}/change-game-style", changeGameStyleRequest);
 
-				if (match.Type == "sparing")
-					levelEngagement = 5;
+					if (match.Type == "sparing")
+						levelEngagement = 5;
 
-				var engagementRequest = new { level = levelEngagement };
-				var result2 = SendSpecPostReq($"{FTPEndpoint}/match/{match.Id}/engagement", engagementRequest);
+					var engagementRequest = new { level = levelEngagement };
+					var result2 = SendSpecPostReq($"{FTPEndpoint}/match/{match.Id}/engagement", engagementRequest);
 
-				Logger.LogD($"{NodeParse(result1)}", opName);
-				Logger.LogD($"{NodeParse(result2)}", opName);
+					Logger.LogD($"{NodeParse(result1)}", opName);
+					Logger.LogD($"{NodeParse(result2)}", opName);
 
-				doneMatches.Add(match.Id);
+					if (notification)
+						SendClubNotification($"Zapraszam na mecz: {match.Host.Name}[{match.Host.Ovr}] - {match.Guest.Name}[{match.Guest.Ovr}] który startuje {match.Start_date}, typ: {match.Type}.", teamId);
 
-				return true;
+					doneMatches.Add(match.Id);
+
+					return true;
+				}
+				return false;
 			}
-			return false;
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
 		}
 
 		public bool CalendarChecker()
 		{
 			var opName = "CALENDAR-CHECKER";
-
-			if (hourCalendar != DateTime.Now.Hour)
+			try
 			{
-				var calendarRequest = new { free_finish_with_credits = false };
-				var result = SendSpecPostReq($"{FTPEndpoint}/calendar/daily", calendarRequest);
-				Logger.LogD($"{NodeParse(result)}", opName);
+				if (hourCalendar != DateTime.Now.Hour)
+				{
+					var calendarRequest = new { free_finish_with_credits = false };
+					var result = SendSpecPostReq($"{FTPEndpoint}/calendar/daily", calendarRequest);
+					Logger.LogD($"{NodeParse(result)}", opName);
 
-				hourCalendar = DateTime.Now.Hour;
-				return true;
+					hourCalendar = DateTime.Now.Hour;
+					return true;
+				}
+				return false;
 			}
-			return false;
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+
 		}
 
 		public bool TrainingCenter(string skill, int amount)
 		{
 			var opName = "TRAINING-CENTER";
-			var trainingCenterRequest = new { skill, amount };
-			var result = SendSpecPostReq($"{FTPEndpoint}/training/center-specialization", trainingCenterRequest);
-			Logger.LogD($"{NodeParse(result)}", opName);
-			return true;
+			try
+			{
+				var trainingCenterRequest = new { skill, amount };
+				var result = SendSpecPostReq($"{FTPEndpoint}/training/center-specialization", trainingCenterRequest);
+				Logger.LogD($"{NodeParse(result)}", opName);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+
 		}
 
 		public bool GetSalaryFromTeam(int teamId)
 		{
 			var opName = "TEAM-SALARY";
-			if (salaryTeamDay != DateTime.Now.Day)
+			try
 			{
-				var result = SendSpecPostReq($"{FTPEndpoint}/teams/{teamId}/accounting/salary", new object());
-				Logger.LogD($"{NodeParse(result)}", opName);
-				salaryTeamDay = DateTime.Now.Day;
+				if (salaryTeamDay != DateTime.Now.Day)
+				{
+					var result = SendSpecPostReq($"{FTPEndpoint}/teams/{teamId}/accounting/salary", new object());
+					Logger.LogD($"{NodeParse(result)}", opName);
+					salaryTeamDay = DateTime.Now.Day;
+					return true;
+				}
+				return false;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+		}
+
+		public bool SendClubNotification(string content, int teamId)
+		{
+			var opName = "TEAM-NOTIFICATION";
+			try
+			{
+				var messageClubRequest = new { content };
+				var result = SendSpecPostReq($"{FTPEndpoint}/teams/{teamId}/control/message", messageClubRequest);
+				Logger.LogD($"{NodeParse(result)}. Details: {content}", opName);
 				return true;
 			}
-			return false;
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
 		}
 
 		[RegularExp.GeneratedRegex("\\d+")]

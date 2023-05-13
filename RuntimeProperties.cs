@@ -95,6 +95,9 @@ namespace FootballteamBOT
 		private bool clubSalary;
 		public bool ClubSalary { get => clubSalary; set => SetField(ref clubSalary, value); }
 
+		private bool clubMessageNotification;
+		public bool ClubMessageNotification { get => clubMessageNotification; set => SetField(ref clubMessageNotification, value); }
+
 
 		#endregion
 

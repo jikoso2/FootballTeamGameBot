@@ -2,7 +2,6 @@
 using FootballteamBOT;
 using System.Globalization;
 using System.Text.Json;
-using static FootballteamBOT.ApiHelper.FTPContracts.ItemsResponse;
 
 StartupProcedure();
 ReadRuntimeProperties(true);
@@ -10,9 +9,17 @@ ReadRuntimeProperties(true);
 var FtpApi = new FTPApi(RuntimeProps.Server, Configuration);
 FtpApi.Login(RuntimeProps.Email, RuntimeProps.Password, RuntimeProps.FingerPrint);
 
-//for (int i = 0; i < 10; i++)
+//for (int i = 0; i < 30; i++)
 //{
-//	FtpApi.Enchanting(int);
+//	int itemid = 34936549;
+//	int enchantLevel = 12;
+
+//	var itemInfo = FtpApi.GetItemInfo(itemid);
+
+//	if (itemInfo.Level == enchantLevel + 1)
+//		break;
+
+//	FtpApi.Enchanting(itemid, itemInfo);
 //	Thread.Sleep(1500);
 //}
 
@@ -72,15 +79,15 @@ while (true)
 	}
 
 	if (RuntimeProps.ClubTraining && GetNowServerDataTime(accountState.TimeZone).Hour >= accountState.Team.TrainingHour && GetNowServerDataTime(accountState.TimeZone).Hour < accountState.Team.TrainingHour + 1)
-		SomethingDoneInLoop |= FtpApi.TeamTraining(accountState.TeamId, RuntimeProps.ClubTrainingSkill);
+		SomethingDoneInLoop |= FtpApi.TeamTraining(accountState.TeamId, RuntimeProps.ClubTrainingSkill, RuntimeProps.ClubMessageNotification);
 
 	if (accountState.Team.NextMatch != null && RuntimeProps.ClubMatchBooster)
-		SomethingDoneInLoop |= FtpApi.MatchBooster(accountState.Team.NextMatch, RuntimeProps.ClubBoosterSkill, RuntimeProps.ClubBoosterLevel, RuntimeProps.ClubBoosterEngagementLevel);
+		SomethingDoneInLoop |= FtpApi.MatchBooster(accountState.Team.NextMatch, RuntimeProps.ClubBoosterSkill, RuntimeProps.ClubBoosterLevel, RuntimeProps.ClubBoosterEngagementLevel, RuntimeProps.ClubMessageNotification, accountState.TeamId);
 
-	if (RuntimeProps.TrainingCenterAfterLimit && accountState.TrainingCenterUsedToday == 0 && accountState.TrainedToday > RuntimeProps.TrainingLimit)
-		SomethingDoneInLoop |= FtpApi.TrainingCenter(RuntimeProps.TrainingCenterSkill,RuntimeProps.TrainingCenterAmount);
+	if (RuntimeProps.TrainingCenterAfterLimit && accountState.TrainingCenterUsedToday == 0 && accountState.TrainedToday > RuntimeProps.TrainingLimit && accountState.Energy >= RuntimeProps.TrainingCenterAmount)
+		SomethingDoneInLoop |= FtpApi.TrainingCenter(RuntimeProps.TrainingCenterSkill, RuntimeProps.TrainingCenterAmount);
 
-	if(RuntimeProps.ClubSalary)
+	if (RuntimeProps.ClubSalary)
 		SomethingDoneInLoop |= FtpApi.GetSalaryFromTeam(accountState.TeamId);
 
 	if (!SomethingDoneInLoop)
@@ -292,6 +299,7 @@ public partial class Program
 				RuntimeProps.ClubBoosterLevel = runtimePropsFromConfig.ClubBoosterLevel;
 				RuntimeProps.ClubBoosterEngagementLevel = runtimePropsFromConfig.ClubBoosterEngagementLevel;
 				RuntimeProps.ClubSalary = runtimePropsFromConfig.ClubSalary;
+				RuntimeProps.ClubMessageNotification = runtimePropsFromConfig.ClubMessageNotification;
 
 				RuntimeProps.GetFreeStarter = runtimePropsFromConfig.GetFreeStarter;
 				RuntimeProps.GetFreeStarterEvent = runtimePropsFromConfig.GetFreeStarterEvent;

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using static FootballteamBOT.ApiHelper.FTPContracts.BetResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.MatchesResponse;
 using System.Text.Json.Serialization;
+using static FootballteamBOT.ApiHelper.FTPContracts.MatchesResponse.Match;
 
 namespace FootballteamBOT.ApiHelper
 {
@@ -364,6 +365,8 @@ namespace FootballteamBOT.ApiHelper
 				public long Id { get; set; }
 				public string Type { get; set; } = string.Empty;
 				public string Start_date { get; set; } = string.Empty;
+				public Team Guest { get; set; } = new();
+				public Team Host { get; set; } = new();
 			}
 		}
 

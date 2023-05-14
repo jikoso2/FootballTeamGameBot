@@ -276,7 +276,7 @@ namespace FootballteamBOT.ApiHelper
 					var calendarResponse = SendGetReq($"{FTPEndpoint}/calendar");
 					var calendarGetResponse = DeserializeJson<CalendarResponse>(calendarResponse);
 
-					accountState.CalendarFinished = calendarGetResponse.Today_challenge.Details.Finished;
+					accountState.CalendarFinished = calendarGetResponse.Today_challenge.Details != null? calendarGetResponse.Today_challenge.Details.Finished : true;
 
 					var centerResponse = SendGetReq($"{FTPEndpoint}/training/center");
 					var centerGetResponse = DeserializeJson<CenterResponse>(centerResponse);
@@ -1034,8 +1034,22 @@ namespace FootballteamBOT.ApiHelper
 					Logger.LogD($"{NodeParse(result1)}", opName);
 					Logger.LogD($"{NodeParse(result2)}", opName);
 
+					var matchType = string.Empty;
+
+					switch (matchType)
+					{
+						case "league":
+							matchType = "Ligowy";
+							break;
+						case "sparing":
+							matchType = "Sparingowy";
+							break;
+						default:
+							break;
+					}
+
 					if (notification)
-						SendClubNotification($"Zapraszam na mecz: {match.Host.Name}[{match.Host.Ovr}] - {match.Guest.Name}[{match.Guest.Ovr}] który startuje {match.Start_date}, typ: {match.Type}.", teamId);
+						SendClubNotification($"Zapraszam na mecz: {match.Host.Name}[{match.Host.Ovr}] - {match.Guest.Name}[{match.Guest.Ovr}] który właśnie startuje. Kaliber meczu: {match.Type}.", teamId);
 
 					doneMatches.Add(match.Id);
 

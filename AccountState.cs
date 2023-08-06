@@ -20,6 +20,7 @@ namespace FootballteamBOT
 		public int TrainedToday { get; set; }
 		public int TeamId { get; set; }
 		public int TrainingCenterUsedToday { get; set; }
+		public long FightId { get; set; }
 		public bool CalendarFinished { get; set; }
 		public TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
 		public CanteenState Canteen { get; set; } = new CanteenState();

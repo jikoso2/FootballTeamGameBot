@@ -19,6 +19,7 @@
 
 	"TrickLearn": false,
 	"Trick": "hokus",
+	"TrickPlayer": false,
 
 	"BetManager": true,
 	"BetMinCourse": 1.32,
@@ -45,6 +46,7 @@
 		"CalendarChecker": true,
 		"Jobs": true,
 		"GoldenBallsWarehouse": true,
+		"AmountGoldenBallsWarehouse": 100,
 		"SellingItems": true,
 		"DonateItemWarehouse": true
 	}

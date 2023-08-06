@@ -100,6 +100,7 @@ namespace FootballteamBOT.ApiHelper
 				public string Name { get; set; } = string.Empty;
 				public long Euro { get; set; }
 				public long Energy { get; set; }
+				public long Fight_id { get; set; }
 				public double Defensive { get; set; }
 				public double Pressing { get; set; }
 				public double Condition { get; set; }
@@ -408,6 +409,12 @@ namespace FootballteamBOT.ApiHelper
 					public bool Finished { get; set; }
 				}
 			}
+		}
+
+		public class TricksFightsResponse
+		{
+			public int Global_limit { get; set; }
+			public int Limit { get; set; }
 		}
 
 		public class CenterResponse

@@ -9,10 +9,10 @@ ReadRuntimeProperties(true);
 var FtpApi = new FTPApi(RuntimeProps.Server, Configuration);
 FtpApi.Login(RuntimeProps.Email, RuntimeProps.Password, RuntimeProps.FingerPrint);
 
-//for (int i = 0; i < 30; i++)
+//for (int i = 0; i < 25; i++)
 //{
-//	int itemid = 34936549;
-//	int enchantLevel = 12;
+//	int itemid = 35685320;
+//	int enchantLevel = 10;
 
 //	var itemInfo = FtpApi.GetItemInfo(itemid);
 
@@ -90,6 +90,9 @@ while (true)
 	if (RuntimeProps.ClubSalary)
 		SomethingDoneInLoop |= FtpApi.GetSalaryFromTeam(accountState.TeamId);
 
+	if (RuntimeProps.TrickPlayer)
+		SomethingDoneInLoop |= FtpApi.TrickFight(accountState);
+
 	if (!SomethingDoneInLoop)
 		Thread.Sleep(40000);
 }
@@ -138,7 +141,7 @@ void CantineeTasksResolver(AccountState userState)
 			case "golden_balls_warehouse":
 				Logger.LogI("GB-WAREHOUSE - left to do", opName);
 				if (RuntimeProps.Cantinee.GoldenBallsWarehouse)
-					SomethingDoneInLoop |= FtpApi.DonateWarehouse(userState, "golden_balls");
+					SomethingDoneInLoop |= FtpApi.DonateWarehouse(userState, "golden_balls", RuntimeProps.Cantinee.AmountGoldenBallsWarehouse);
 				break;
 
 			case "material_warehouse":
@@ -286,6 +289,7 @@ public partial class Program
 
 				RuntimeProps.TrickLearn = runtimePropsFromConfig.TrickLearn;
 				RuntimeProps.Trick = runtimePropsFromConfig.Trick;
+				RuntimeProps.TrickPlayer = runtimePropsFromConfig.TrickPlayer;
 
 				RuntimeProps.BetManager = runtimePropsFromConfig.BetManager;
 				RuntimeProps.BetMinCourse = runtimePropsFromConfig.BetMinCourse;
@@ -313,6 +317,7 @@ public partial class Program
 				RuntimeProps.Cantinee.Jobs = runtimePropsFromConfig.Cantinee.Jobs;
 				RuntimeProps.Cantinee.SellingItems = runtimePropsFromConfig.Cantinee.SellingItems;
 				RuntimeProps.Cantinee.GoldenBallsWarehouse = runtimePropsFromConfig.Cantinee.GoldenBallsWarehouse;
+				RuntimeProps.Cantinee.AmountGoldenBallsWarehouse = runtimePropsFromConfig.Cantinee.AmountGoldenBallsWarehouse;
 				RuntimeProps.Cantinee.DonateItemWarehouse = runtimePropsFromConfig.Cantinee.DonateItemWarehouse;
 			}
 			else

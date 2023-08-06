@@ -12,6 +12,8 @@ using static FootballteamBOT.ApiHelper.FTPContracts.MatchesResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.TricksResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.TeamResponse;
 using System.Xml.Linq;
+using static FootballteamBOT.ApiHelper.FTPContracts.MatchesResponse.Match;
+using static FootballteamBOT.ApiHelper.FTPContracts.TricksResponse.Trick;
 
 namespace FootballteamBOT.ApiHelper
 {
@@ -37,6 +39,7 @@ namespace FootballteamBOT.ApiHelper
 		public int dayClubTraining = 0;
 		public int hourCalendar = 0;
 		public int salaryTeamDay = 0;
+		public bool inTrickQueue = false;
 		public List<long> doneMatches = new();
 
 
@@ -161,6 +164,7 @@ namespace FootballteamBOT.ApiHelper
 					{
 						Name = userGetResponse.User.Name,
 						Euro = userGetResponse.User.Euro,
+						FightId = userGetResponse.User.Fight_id,
 						Energy = userGetResponse.User.Energy,
 						Condition = userGetResponse.User.Condition,
 						Defensive = userGetResponse.User.Defensive,
@@ -203,7 +207,7 @@ namespace FootballteamBOT.ApiHelper
 
 					accountState.Job.Queue = jobGetResponse.Queue;
 
-					var itemsResponse = SendGetReq($"{FTPEndpoint}/character/items");
+					var itemsResponse = SendGetReq($"{FTPEndpoint}/character/cloakroom/items");
 					var itemsGetResponse = DeserializeJson<ItemsResponse>(itemsResponse);
 
 					accountState.Item.Items = itemsGetResponse.Items;
@@ -276,7 +280,7 @@ namespace FootballteamBOT.ApiHelper
 					var calendarResponse = SendGetReq($"{FTPEndpoint}/calendar");
 					var calendarGetResponse = DeserializeJson<CalendarResponse>(calendarResponse);
 
-					accountState.CalendarFinished = calendarGetResponse.Today_challenge.Details != null? calendarGetResponse.Today_challenge.Details.Finished : true;
+					accountState.CalendarFinished = calendarGetResponse.Today_challenge.Details != null ? calendarGetResponse.Today_challenge.Details.Finished : true;
 
 					var centerResponse = SendGetReq($"{FTPEndpoint}/training/center");
 					var centerGetResponse = DeserializeJson<CenterResponse>(centerResponse);
@@ -720,8 +724,13 @@ namespace FootballteamBOT.ApiHelper
 			try
 			{
 				var packRequest = new { type = "energetic_locked", amount };
-				SendPostReq($"{FTPEndpoint}/character/packs/event-free", packRequest);
-				Logger.LogD($"Open energetic pack, amount: {amount}", opName);
+				var result = SendSpecPostReq($"{FTPEndpoint}/character/packs/event-free", packRequest);
+
+				var parsedJson = JsonNode.Parse(result.Item1);
+				var prize = parsedJson["prize"]["item"]["display"];
+
+				Logger.LogD($"Open energetic pack, amount: {amount}, prize: {prize}", opName);
+
 				return true;
 			}
 			catch (Exception ex)
@@ -976,14 +985,14 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool DonateWarehouse(AccountState accState, string type)
+		public bool DonateWarehouse(AccountState accState, string type, int amount = 0)
 		{
 			var opName = "DONATE-TEAM";
 			try
 			{
 				if (type == "golden_balls")
 				{
-					var donateRequest = new { amount = 200, type };
+					var donateRequest = new { amount = amount != 0 ? amount : 200, type };
 					var result = SendSpecPostReq($"{FTPEndpoint}/teams/{accState.TeamId}/warehouse", donateRequest);
 					Logger.LogD($"{NodeParse(result)}", opName);
 					return true;
@@ -1142,6 +1151,92 @@ namespace FootballteamBOT.ApiHelper
 				Logger.LogE(ex.ToString(), opName);
 				return false;
 			}
+		}
+
+		public bool TrickFight(AccountState accState)
+		{
+			var opName = "TRICK-FIGHT";
+			try
+			{
+				bool firstRound = Program.GetNowServerDataTime(accState.TimeZone).Hour >= 13 && Program.GetNowServerDataTime(accState.TimeZone).Hour < 15;
+				bool secondRound = Program.GetNowServerDataTime(accState.TimeZone).AddMinutes(30).Hour >= 22 && Program.GetNowServerDataTime(accState.TimeZone).AddMinutes(30).Hour < 23;
+
+				if (firstRound || secondRound)
+				{
+					var trickFightsResponse = SendGetReq($"{FTPEndpoint}/tricks-fights");
+					var mailsGetResponse = DeserializeJson<TricksFightsResponse>(trickFightsResponse);
+
+					if (mailsGetResponse.Global_limit - mailsGetResponse.Limit == 0)
+						return false;
+
+					if (!inTrickQueue)
+					{
+						return JoinToTrickQueue();
+					}
+
+					if (accState.FightId != 0)
+					{
+						return TrickPlay(accState.FightId);
+					}
+				}
+				return false;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+		}
+
+		public bool JoinToTrickQueue()
+		{
+			var opName = "TRICK-QUEUE";
+
+			try
+			{
+				var result = SendSpecPostReq($"{FTPEndpoint}/tricks-fights", new object());
+				Logger.LogD($"{NodeParse(result)}", opName);
+				inTrickQueue = true;
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+		}
+
+		public bool TrickPlay(long id)
+		{
+			var opName = "TRICK-PLAYER";
+
+			var trickList = Enum.GetNames(typeof(EnumTricks));
+
+			foreach (var trick in trickList)
+			{
+				try
+				{
+					var result = SendSpecPostReq($"{FTPEndpoint}/tricks-fights/{id}", new { trick });
+
+					while (result.Item2 != HttpStatusCode.OK)
+					{
+						Thread.Sleep(3000);
+						result = SendSpecPostReq($"{FTPEndpoint}/tricks-fights/{id}", new { trick });
+						Logger.LogD($"{NodeParse(result)}", opName);
+
+						if (result.Item1.Contains("This duel has already ended.") || result.Item1.Contains("Ten pojedynek się zakończył."))
+							break;
+					}
+				}
+				catch (Exception ex)
+				{
+					Logger.LogD($"Something went wrong. Details: {ex}", opName);
+					continue;
+				}
+			}
+
+			inTrickQueue = false;
+			return true;
 		}
 
 		[RegularExp.GeneratedRegex("\\d+")]

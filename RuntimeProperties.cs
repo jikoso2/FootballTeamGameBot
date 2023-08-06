@@ -55,6 +55,9 @@ namespace FootballteamBOT
 
 		private string trick = string.Empty;
 		public string Trick { get => trick; set => SetField(ref trick, value); }
+
+		private bool trickPlayer;
+		public bool TrickPlayer { get => trickPlayer; set => SetField(ref trickPlayer, value); }
 		#endregion
 
 
@@ -181,6 +184,9 @@ namespace FootballteamBOT
 
 			private bool goldenBallsWarehouse;
 			public bool GoldenBallsWarehouse { get => goldenBallsWarehouse; set => SetField(ref goldenBallsWarehouse, value); }
+
+			private int amountGoldenBallsWarehouse;
+			public int AmountGoldenBallsWarehouse { get => amountGoldenBallsWarehouse; set => SetField(ref amountGoldenBallsWarehouse, value); }
 
 			private bool sellingItems;
 			public bool SellingItems { get => sellingItems; set => SetField(ref sellingItems, value); }

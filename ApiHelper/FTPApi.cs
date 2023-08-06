@@ -698,7 +698,15 @@ namespace FootballteamBOT.ApiHelper
 				var teamTrainingRequest = new { skill, double_with_credits = false };
 				if (DateTime.Now.Day != dayClubTraining)
 				{
-					SendPostReq($"{FTPEndpoint}/teams/{teamId}/training", teamTrainingRequest);
+					if (skill.Contains('_'))
+					{
+						SendPostReq($"{FTPEndpoint}/teams/{teamId}/training-specialization", teamTrainingRequest);
+					}
+					else
+					{
+						SendPostReq($"{FTPEndpoint}/teams/{teamId}/training", teamTrainingRequest);
+					}
+
 					Logger.LogD($"You signed up for club training, skill: {skill}", opName);
 					dayClubTraining = DateTime.Now.Day;
 

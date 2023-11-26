@@ -4,7 +4,7 @@ namespace FootballteamBOT
 {
 	public class RuntimeProperties
 	{
-		public RuntimeProperties() { Training = new TrainingProperties() { NotifyChange = true }; Cantinee = new CantineeProperties() { NotifyChange = true }; }
+		public RuntimeProperties() { Training = new TrainingProperties() { NotifyChange = true }; Cantinee = new CantineeProperties() { NotifyChange = true }; Team = new TeamProperties() { NotifyChange = true }; }
 
 		private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
 		{
@@ -42,7 +42,7 @@ namespace FootballteamBOT
 		private int trainingCenterAmount;
 		public int TrainingCenterAmount { get => trainingCenterAmount; set => SetField(ref trainingCenterAmount, value); }
 
-		private string trainingCenterSkill;
+		private string trainingCenterSkill = string.Empty;
 		public string TrainingCenterSkill { get => trainingCenterSkill; set => SetField(ref trainingCenterSkill, value); }
 
 		public TrainingProperties Training { get; set; }
@@ -73,34 +73,9 @@ namespace FootballteamBOT
 		#endregion
 
 
-		#region Club
-		private bool clubTraining;
-		public bool ClubTraining { get => clubTraining; set => SetField(ref clubTraining, value); }
+		#region Team
 
-		private string clubTrainingSkill = string.Empty;
-		public string ClubTrainingSkill { get => clubTrainingSkill; set => SetField(ref clubTrainingSkill, value); }
-
-		private bool clubEuroAutoTransfer;
-		public bool ClubEuroAutoTransfer { get => clubEuroAutoTransfer; set => SetField(ref clubEuroAutoTransfer, value); }
-
-		private bool clubMatchBooster;
-		public bool ClubMatchBooster { get => clubMatchBooster; set => SetField(ref clubMatchBooster, value); }
-
-		private string clubBoosterSkill = string.Empty;
-		public string ClubBoosterSkill { get => clubBoosterSkill; set => SetField(ref clubBoosterSkill, value); }
-
-		private int clubBoosterLevel;
-		public int ClubBoosterLevel { get => clubBoosterLevel; set => SetField(ref clubBoosterLevel, value); }
-
-		private int clubBoosterEngagementLevel;
-		public int ClubBoosterEngagementLevel { get => clubBoosterEngagementLevel; set => SetField(ref clubBoosterEngagementLevel, value); }
-
-		private bool clubSalary;
-		public bool ClubSalary { get => clubSalary; set => SetField(ref clubSalary, value); }
-
-		private bool clubMessageNotification;
-		public bool ClubMessageNotification { get => clubMessageNotification; set => SetField(ref clubMessageNotification, value); }
-
+		public TeamProperties Team { get; set; }
 
 		#endregion
 
@@ -120,12 +95,90 @@ namespace FootballteamBOT
 
 		private bool eatFood;
 		public bool EatFood { get => eatFood; set => SetField(ref eatFood, value); }
+
+		private bool autoGetCardPack;
+		public bool AutoGetCardPack { get => autoGetCardPack; set => SetField(ref autoGetCardPack, value); }
+
+		private bool autoOpenCardPacks;
+		public bool AutoOpenCardPacks { get => autoOpenCardPacks; set => SetField(ref autoOpenCardPacks, value); }
+
+		private long targetEuro;
+		public long TargetEuro { get => targetEuro; set => SetField(ref targetEuro, value); }
+
+		private int jobType;
+		public int JobType { get => jobType; set => SetField(ref jobType, value); }
 		#endregion
 
 
 		#region Cantinee
 		public CantineeProperties Cantinee { get; set; }
 		#endregion
+
+		public class TeamProperties
+		{
+			private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+			{
+				if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+				if (NotifyChange)
+					Logger.LogRuntimesProps($"TeamProperties.{propertyName} : {field} => {value}", "RUNTIME-PROPERTIES");
+				field = value;
+				return true;
+			}
+
+			public bool NotifyChange { get; set; }
+
+			private bool training;
+			public bool Training { get => training; set => SetField(ref training, value); }
+
+			private string trainingSkill = string.Empty;
+			public string TrainingSkill { get => trainingSkill; set => SetField(ref trainingSkill, value); }
+
+			private bool euroAutoTransfer;
+			public bool EuroAutoTransfer { get => euroAutoTransfer; set => SetField(ref euroAutoTransfer, value); }
+
+			private bool matchBooster;
+			public bool MatchBooster { get => matchBooster; set => SetField(ref matchBooster, value); }
+
+			private string boosterSkill = string.Empty;
+			public string BoosterSkill { get => boosterSkill; set => SetField(ref boosterSkill, value); }
+
+			private bool salary;
+			public bool Salary { get => salary; set => SetField(ref salary, value); }
+
+			private bool autoSparingSignUp;
+			public bool AutoSparingSignUp { get => autoSparingSignUp; set => SetField(ref autoSparingSignUp, value); }
+
+			private bool messageNotification;
+			public bool MessageNotification { get => messageNotification; set => SetField(ref messageNotification, value); }
+
+			private int countryBoosterLevel;
+			public int CountryBoosterLevel { get => countryBoosterLevel; set => SetField(ref countryBoosterLevel, value); }
+
+			private int countryBoosterEngagementLevel;
+			public int CountryEngagementLevel { get => countryBoosterEngagementLevel; set => SetField(ref countryBoosterEngagementLevel, value); }
+
+			private int leagueBoosterLevel;
+			public int LeagueBoosterLevel { get => leagueBoosterLevel; set => SetField(ref leagueBoosterLevel, value); }
+
+			private int leagueBoosterEngagementLevel;
+			public int LeagueBoosterEngagementLevel { get => leagueBoosterEngagementLevel; set => SetField(ref leagueBoosterEngagementLevel, value); }
+
+			private int tournamentBoosterLevel;
+			public int TournamentBoosterLevel { get => tournamentBoosterLevel; set => SetField(ref tournamentBoosterLevel, value); }
+
+			private int tournamentBoosterEngagementLevel;
+			public int TournamentBoosterEngagementLevel { get => tournamentBoosterEngagementLevel; set => SetField(ref tournamentBoosterEngagementLevel, value); }
+
+			private int sparingBoosterLevel;
+			public int SparingBoosterLevel { get => sparingBoosterLevel; set => SetField(ref sparingBoosterLevel, value); }
+
+			private int sparingBoosterEngagementLevel;
+			public int SparingBoosterEngagementLevel { get => sparingBoosterEngagementLevel; set => SetField(ref sparingBoosterEngagementLevel, value); }
+
+			private bool generateRaportFile;
+			public bool GenerateRaportFile { get => generateRaportFile; set => SetField(ref generateRaportFile, value); }
+
+		}
 
 		public class TrainingProperties
 		{
@@ -193,6 +246,21 @@ namespace FootballteamBOT
 
 			private bool donateItemWarehouse;
 			public bool DonateItemWarehouse { get => donateItemWarehouse; set => SetField(ref donateItemWarehouse, value); }
+
+			private bool augment;
+			public bool Augment { get => augment; set => SetField(ref augment, value); }
+
+			private long augmentItemId;
+			public long AugmentItemId { get => augmentItemId; set => SetField(ref augmentItemId, value); }
+
+			private string augmentItemType = string.Empty;
+			public string AugmentItemType { get => augmentItemType; set => SetField(ref augmentItemType, value); }
+
+			private bool exchangeBoosters;
+			public bool ExchangeBoosters { get => exchangeBoosters; set => SetField(ref exchangeBoosters, value); }
+
+			private long boosterId;
+			public long BoosterId { get => boosterId; set => SetField(ref boosterId, value); }
 		}
 	}
 }

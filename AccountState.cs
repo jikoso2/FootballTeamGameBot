@@ -30,6 +30,8 @@ namespace FootballteamBOT
 		public ItemState Item { get; set; } = new ItemState();
 		public BetState Bet { get; set; } = new BetState();
 		public TeamState Team { get; set; } = new TeamState();
+		public int ServerTimeDay() => Program.GetNowServerDataTime(TimeZone).Day;
+		public int ServerTimeHour() => Program.GetNowServerDataTime(TimeZone).Hour;
 
 		public class CanteenState
 		{
@@ -49,6 +51,7 @@ namespace FootballteamBOT
 			public int Gold { get; set; }
 			public int Energy { get; set; }
 			public int KeyMultiplier { get; set; }
+			public int Card { get; set; }
 		}
 
 		public class JobState

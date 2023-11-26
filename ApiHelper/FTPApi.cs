@@ -6,14 +6,14 @@ using RegularExp = System.Text.RegularExpressions;
 
 using TimeZoneConverter;
 
+using static FootballteamBOT.RuntimeProperties;
 using static FootballteamBOT.ApiHelper.FTPContracts;
 using static FootballteamBOT.ApiHelper.FTPContracts.ItemsResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.MatchesResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.TricksResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.TeamResponse;
-using System.Xml.Linq;
-using static FootballteamBOT.ApiHelper.FTPContracts.MatchesResponse.Match;
 using static FootballteamBOT.ApiHelper.FTPContracts.TricksResponse.Trick;
+using System.Net.NetworkInformation;
 
 namespace FootballteamBOT.ApiHelper
 {
@@ -36,9 +36,12 @@ namespace FootballteamBOT.ApiHelper
 		public int dayTricks = 0;
 		public int dayFreeStarter = 0;
 		public int dayFreeStarterEvent = 0;
-		public int dayClubTraining = 0;
+		public int dayTeamTraining = 0;
+		public int dayCardPack = 0;
 		public int hourCalendar = 0;
 		public int salaryTeamDay = 0;
+		public int sparingTeamDay = 0;
+		public int dayTeamRaport = 0;
 		public bool inTrickQueue = false;
 		public List<long> doneMatches = new();
 
@@ -192,6 +195,7 @@ namespace FootballteamBOT.ApiHelper
 					accountState.Packs.Energy = packsGetResponse.Packs.Energetic_locked;
 					accountState.Packs.Gold = packsGetResponse.Packs.Gold;
 					accountState.Packs.Silver = packsGetResponse.Packs.Silver;
+					accountState.Packs.Card = packsGetResponse.Packs.Cards_locked;
 					accountState.Packs.FreeKeys = packsGetResponse.Free_keys;
 					accountState.Packs.PremiumKeys = packsGetResponse.Keys;
 					accountState.Packs.KeyMultiplier = packsGetResponse.Key_multiplier;
@@ -280,7 +284,7 @@ namespace FootballteamBOT.ApiHelper
 					var calendarResponse = SendGetReq($"{FTPEndpoint}/calendar");
 					var calendarGetResponse = DeserializeJson<CalendarResponse>(calendarResponse);
 
-					accountState.CalendarFinished = calendarGetResponse.Today_challenge.Details != null ? calendarGetResponse.Today_challenge.Details.Finished : true;
+					accountState.CalendarFinished = calendarGetResponse.Today_challenge.Details == null || calendarGetResponse.Today_challenge.Details.Finished;
 
 					var centerResponse = SendGetReq($"{FTPEndpoint}/training/center");
 					var centerGetResponse = DeserializeJson<CenterResponse>(centerResponse);
@@ -690,28 +694,28 @@ namespace FootballteamBOT.ApiHelper
 
 		public List<int> AllPosibilities = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
-		public bool TeamTraining(int teamId, string skill, bool notification)
+		public bool TeamTraining(AccountState accState, string skill, bool notification)
 		{
 			var opName = "TEAM-TRAINING";
 			try
 			{
 				var teamTrainingRequest = new { skill, double_with_credits = false };
-				if (DateTime.Now.Day != dayClubTraining)
+				if (dayTeamTraining != accState.ServerTimeDay())
 				{
 					if (skill.Contains('_'))
 					{
-						SendPostReq($"{FTPEndpoint}/teams/{teamId}/training-specialization", teamTrainingRequest);
+						SendPostReq($"{FTPEndpoint}/teams/{accState.TeamId}/training-specialization", teamTrainingRequest);
 					}
 					else
 					{
-						SendPostReq($"{FTPEndpoint}/teams/{teamId}/training", teamTrainingRequest);
+						SendPostReq($"{FTPEndpoint}/teams/{accState.TeamId}/training", teamTrainingRequest);
 					}
 
-					Logger.LogD($"You signed up for club training, skill: {skill}", opName);
-					dayClubTraining = DateTime.Now.Day;
+					Logger.LogD($"You signed up for team training, skill: {skill}", opName);
+					dayTeamTraining = accState.ServerTimeDay();
 
 					if (notification)
-						SendClubNotification("Zapraszam na trening klubowy, który właśnie się rozpoczyna.", teamId);
+						SendTeamNotification("Zapraszam na trening klubowy, który właśnie się rozpoczyna.", accState.TeamId);
 
 					return true;
 				}
@@ -721,7 +725,7 @@ namespace FootballteamBOT.ApiHelper
 			catch (Exception ex)
 			{
 				Logger.LogE(ex.ToString(), opName);
-				dayClubTraining = DateTime.Now.Day;
+				dayTeamTraining = accState.ServerTimeDay();
 				return false;
 			}
 		}
@@ -735,9 +739,31 @@ namespace FootballteamBOT.ApiHelper
 				var result = SendSpecPostReq($"{FTPEndpoint}/character/packs/event-free", packRequest);
 
 				var parsedJson = JsonNode.Parse(result.Item1);
-				var prize = parsedJson["prize"]["item"]["display"];
+				var prize = parsedJson?["prize"]?["item"]?["display"];
 
 				Logger.LogD($"Open energetic pack, amount: {amount}, prize: {prize}", opName);
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+		}
+
+		public bool OpenPack(string type)
+		{
+			var opName = "PACKS";
+			try
+			{
+				var packRequest = new { type, amount = 1 };
+				var result = SendSpecPostReq($"{FTPEndpoint}/character/packs/free", packRequest);
+
+				var parsedJson = JsonNode.Parse(result.Item1);
+				var prize = parsedJson?["prize"]?["item"]?["display"];
+
+				Logger.LogD($"Open {type} pack, prize: {prize}", opName);
 
 				return true;
 			}
@@ -881,7 +907,7 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool ClubTransferEuro(int teamId, long amount)
+		public bool TeamTransferEuro(int teamId, long amount)
 		{
 			var opName = "TRANSFER-EURO";
 			try
@@ -898,15 +924,15 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool GetFreeStarter()
+		public bool GetFreeStarter(AccountState accState)
 		{
 			var opName = "FREE-PACK";
 			try
 			{
-				if (DateTime.Now.Day != dayFreeStarter)
+				if (dayFreeStarter != accState.ServerTimeDay())
 				{
 					var result = SendSpecPostReq($"{FTPEndpoint}/shop/starters-free", new object());
-					dayFreeStarter = DateTime.Now.Day;
+					dayFreeStarter = accState.ServerTimeDay();
 
 					if (result.Item2 == HttpStatusCode.OK)
 					{
@@ -928,15 +954,15 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool GetFreeStarterEvent()
+		public bool GetFreeStarterEvent(AccountState accState)
 		{
 			var opName = "FREE-EVENT-PACK";
 			try
 			{
-				if (DateTime.Now.Day != dayFreeStarterEvent)
+				if (dayFreeStarterEvent != accState.ServerTimeDay())
 				{
 					var result = SendSpecPostReq($"{FTPEndpoint}/shop/event-packs", new object());
-					dayFreeStarterEvent = DateTime.Now.Day;
+					dayFreeStarterEvent = accState.ServerTimeDay();
 
 					if (result.Item2 == HttpStatusCode.OK)
 					{
@@ -970,7 +996,7 @@ namespace FootballteamBOT.ApiHelper
 
 				if (FTPServer == "pl")
 					deletingMails = mailsGetResponse.Mailbox.Where(a => a.Title.Contains("Trening asystenta zakończony")).ToList();
-				else if (FTPServer == "us")
+				else if (FTPServer == "us" || FTPServer == "en")
 					deletingMails = mailsGetResponse.Mailbox.Where(a => a.Title.Contains("Assistant training has finished")).ToList();
 
 				if (deletingMails.Any())
@@ -1032,18 +1058,45 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool MatchBooster(TeamMatch match, string skill, int levelGameStyle, int levelEngagement, bool notification, int teamId)
+		public bool MatchBooster(TeamMatch match, TeamProperties teamProperties, int teamId)
 		{
 			var opName = "MATCH-TEAM";
 			try
 			{
 				if (!doneMatches.Contains(match.Id))
 				{
-					var changeGameStyleRequest = new { level = levelGameStyle, style = skill };
-					var result1 = SendSpecPostReq($"{FTPEndpoint}/match/{match.Id}/change-game-style", changeGameStyleRequest);
+					var matchType = string.Empty;
+					var levelBooster = 1;
+					var levelEngagement = 1;
 
-					if (match.Type == "sparing")
-						levelEngagement = 5;
+					switch (match.Type)
+					{
+						case "league":
+							matchType = "Ligowy";
+							levelBooster = teamProperties.LeagueBoosterLevel;
+							levelEngagement = teamProperties.LeagueBoosterEngagementLevel;
+							break;
+						case "sparing":
+							matchType = "Sparingowy";
+							levelBooster = teamProperties.SparingBoosterLevel;
+							levelEngagement = teamProperties.SparingBoosterEngagementLevel;
+							break;
+						case "country":
+							matchType = "Puchar Krajowy";
+							levelBooster = teamProperties.CountryBoosterLevel;
+							levelEngagement = teamProperties.CountryEngagementLevel;
+							break;
+						case "tournament":
+							matchType = "Turniejowy";
+							levelBooster = teamProperties.CountryBoosterLevel;
+							levelEngagement = teamProperties.CountryEngagementLevel;
+							break;
+						default:
+							break;
+					}
+
+					var changeGameStyleRequest = new { level = levelBooster, style = teamProperties.BoosterSkill };
+					var result1 = SendSpecPostReq($"{FTPEndpoint}/match/{match.Id}/change-game-style", changeGameStyleRequest);
 
 					var engagementRequest = new { level = levelEngagement };
 					var result2 = SendSpecPostReq($"{FTPEndpoint}/match/{match.Id}/engagement", engagementRequest);
@@ -1051,22 +1104,8 @@ namespace FootballteamBOT.ApiHelper
 					Logger.LogD($"{NodeParse(result1)}", opName);
 					Logger.LogD($"{NodeParse(result2)}", opName);
 
-					var matchType = string.Empty;
-
-					switch (matchType)
-					{
-						case "league":
-							matchType = "Ligowy";
-							break;
-						case "sparing":
-							matchType = "Sparingowy";
-							break;
-						default:
-							break;
-					}
-
-					if (notification)
-						SendClubNotification($"Zapraszam na mecz: {match.Host.Name}[{match.Host.Ovr}] - {match.Guest.Name}[{match.Guest.Ovr}] który właśnie startuje. Kaliber meczu: {match.Type}.", teamId);
+					if (teamProperties.MessageNotification)
+						SendTeamNotification($"Zapraszam na mecz: {match.Host.Name}[{match.Host.Ovr}] - {match.Guest.Name}[{match.Guest.Ovr}] który właśnie startuje. Rodzaj meczu: {matchType}.", teamId);
 
 					doneMatches.Add(match.Id);
 
@@ -1123,16 +1162,16 @@ namespace FootballteamBOT.ApiHelper
 
 		}
 
-		public bool GetSalaryFromTeam(int teamId)
+		public bool GetSalaryFromTeam(AccountState accountState)
 		{
 			var opName = "TEAM-SALARY";
 			try
 			{
-				if (salaryTeamDay != DateTime.Now.Day)
+				if (salaryTeamDay != accountState.ServerTimeDay())
 				{
-					var result = SendSpecPostReq($"{FTPEndpoint}/teams/{teamId}/accounting/salary", new object());
+					var result = SendSpecPostReq($"{FTPEndpoint}/teams/{accountState.TeamId}/accounting/salary", new object());
 					Logger.LogD($"{NodeParse(result)}", opName);
-					salaryTeamDay = DateTime.Now.Day;
+					salaryTeamDay = accountState.ServerTimeDay();
 					return true;
 				}
 				return false;
@@ -1144,13 +1183,13 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool SendClubNotification(string content, int teamId)
+		public bool SendTeamNotification(string content, int teamId)
 		{
 			var opName = "TEAM-NOTIFICATION";
 			try
 			{
-				var messageClubRequest = new { content };
-				var result = SendSpecPostReq($"{FTPEndpoint}/teams/{teamId}/control/message", messageClubRequest);
+				var messageTeamRequest = new { content };
+				var result = SendSpecPostReq($"{FTPEndpoint}/teams/{teamId}/control/message", messageTeamRequest);
 				Logger.LogD($"{NodeParse(result)}. Details: {content}", opName);
 				return true;
 			}
@@ -1246,6 +1285,211 @@ namespace FootballteamBOT.ApiHelper
 			inTrickQueue = false;
 			return true;
 		}
+
+		public bool GetCardPack(AccountState accState)
+		{
+			var opName = "CARD-PACK";
+			try
+			{
+				if (dayCardPack != accState.ServerTimeDay())
+				{
+					var result = SendSpecPostReq($"{FTPEndpoint}/canteen/prize", new object());
+					Logger.LogD($"{NodeParse(result)}", opName);
+					dayCardPack = accState.ServerTimeDay();
+					return true;
+				}
+				return false;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+		}
+
+		public bool OpenCardPacks(int amount)
+		{
+			var opName = "OPEN-CARD-PACKS";
+			try
+			{
+				for (int i = 0; i < amount; i++)
+				{
+					var packRequest = new { type = "cards_locked", amount = 1 };
+					var result = SendSpecPostReq($"{FTPEndpoint}/character/cards/open", packRequest);
+
+					var openCardResponse = DeserializeJson<OpenCardResponse>(result.Item1);
+					var message = "\n" + string.Join('\n', openCardResponse.Prizes.Select(a => $"Typ: {a.Rarity}, Nazwa: [{a.Ovr}]{a.Name}"));
+					Logger.LogD($"Open card pack, prize: {message}", opName);
+					Thread.Sleep(2000);
+				}
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+		}
+
+		public bool Augment(long itemId, string itemType)
+		{
+			var opName = "AUGMENT";
+			try
+			{
+				long? crystalId = 0;
+
+				var augmentResponse = SendGetReq($"{FTPEndpoint}/character/items/special-bonus");
+				var augmentGetResponse = DeserializeJson<AugmentResponse>(augmentResponse);
+
+				if (!augmentGetResponse.Crystals.Any())
+					return false;
+
+				switch (itemType)
+				{
+					case "epic":
+						crystalId = augmentGetResponse.Crystals.FirstOrDefault(a => a.Type == "epic")?.Id;
+						break;
+					case "legendary":
+						crystalId = augmentGetResponse.Crystals.FirstOrDefault(a => a.Type == "legendary")?.Id;
+						break;
+					case "platinum":
+						crystalId = augmentGetResponse.Crystals.FirstOrDefault(a => a.Type == "platinum")?.Id;
+						break;
+					case "diamond":
+						crystalId = augmentGetResponse.Crystals.FirstOrDefault(a => a.Type == "diamond")?.Id;
+						break;
+					case "historical":
+						crystalId = augmentGetResponse.Crystals.FirstOrDefault(a => a.Type == "historical")?.Id;
+						break;
+					default:
+						return false;
+				}
+
+				var augmentRequest = new { crystal_id = crystalId };
+				var result = SendSpecPostReq($"{FTPEndpoint}/character/items/special-bonus/{itemId}", augmentRequest);
+
+				var parsedJson = JsonNode.Parse(result.Item1);
+				var bonus = parsedJson?["bonus"];
+
+				Logger.LogD($"Augment item id: {itemId}, new bonus: {bonus}%", opName);
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+		}
+
+		public bool ExchangeBoosters(long boosterId, int amount)
+		{
+			var opName = "AUGMENT";
+			try
+			{
+
+				var exchangeRequest = new { amount, booster_id = boosterId };
+				var result = SendSpecPostReq($"{FTPEndpoint}/character/boosters/exchange-energy", exchangeRequest);
+
+				Logger.LogD($"{NodeParse(result)}", opName);
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+		}
+
+		public bool SparingSignUp(AccountState accState)
+		{
+			var opName = "SPARING-SIGN-UP";
+			try
+			{
+				if (sparingTeamDay != accState.ServerTimeDay())
+				{
+					var result = SendSpecPostReq($"{FTPEndpoint}/teams/{accState.TeamId}/control/sparing", new object());
+					Logger.LogD($"{NodeParse(result)}", opName);
+					sparingTeamDay = accState.ServerTimeDay();
+					return true;
+				}
+				return false;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+		}
+
+		public bool GenerateTeamStats(AccountState accState)
+		{
+			var opName = "GENERATE-FILE-STATS";
+			try
+			{
+				if (dayTeamRaport != accState.ServerTimeDay())
+				{
+					dayTeamRaport = accState.ServerTimeDay();
+
+					var teamStats = SendGetReq($"{FTPEndpoint}/teams/{accState.TeamId}");
+					var teamStatsGetResponse = DeserializeJson<TeamResponse>(teamStats);
+					string toFile = string.Empty;
+					toFile += "Id,Name,Ranking," +
+						"Reading_All,Pressing_All,Playmaking_All,Defensive_All,Condition_All,Efficacy_All,FreeKicks_All,Offensive_All," +
+						"Reading_Training,Pressing_Training,Playmaking_Training,Defensive_Training,Condition_Training,Efficacy_Training,FreeKicks_Training,Offensive_Training," +
+						"Reading_Card,Pressing_Card,Playmaking_Card,Defensive_Card,Condition_Card,Efficacy_Card,FreeKicks_Card,Offensive_Card" +
+						"\n";
+
+					foreach (var id in teamStatsGetResponse.Composition.Players.Select(a => a.Id))
+					{
+						var user = SendGetReq($"{FTPEndpoint}/profile/{id}");
+						var userGetResponse = DeserializeJson<ProfileResponse>(user);
+
+						var stat = string.Join(",",
+							userGetResponse.User.Id,
+							userGetResponse.User.Name,
+							userGetResponse.User.Ranking_Position,
+							userGetResponse.User.Skills.All.Reading,
+							userGetResponse.User.Skills.All.Pressing,
+							userGetResponse.User.Skills.All.Playmaking,
+							userGetResponse.User.Skills.All.Defensive,
+							userGetResponse.User.Skills.All.Condition,
+							userGetResponse.User.Skills.All.Efficacy,
+							userGetResponse.User.Skills.All.Freekicks,
+							userGetResponse.User.Skills.All.Offensive,
+							userGetResponse.User.Skills.Training.Reading,
+							userGetResponse.User.Skills.Training.Pressing,
+							userGetResponse.User.Skills.Training.Playmaking,
+							userGetResponse.User.Skills.Training.Defensive,
+							userGetResponse.User.Skills.Training.Condition,
+							userGetResponse.User.Skills.Training.Efficacy,
+							userGetResponse.User.Skills.Training.Freekicks,
+							userGetResponse.User.Skills.Training.Offensive,
+							userGetResponse.User.Skills.Cards.Reading,
+							userGetResponse.User.Skills.Cards.Pressing,
+							userGetResponse.User.Skills.Cards.Playmaking,
+							userGetResponse.User.Skills.Cards.Defensive,
+							userGetResponse.User.Skills.Cards.Condition,
+							userGetResponse.User.Skills.Cards.Efficacy,
+							userGetResponse.User.Skills.Cards.Freekicks,
+							userGetResponse.User.Skills.Cards.Offensive
+							);
+						toFile += stat + "\n";
+					}
+					File.WriteAllText(Directory.GetCurrentDirectory() + $"\\Configurations\\Stats\\{DateTime.Now.ToString("d-M-yyyy-H-m")}.txt", toFile);
+
+					return true;
+				}
+				return false;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.Message, opName);
+				return false;
+			}
+		}
+
 
 		[RegularExp.GeneratedRegex("\\d+")]
 		private static partial RegularExp.Regex MessageRegex();

@@ -25,22 +25,38 @@
 	"BetMinCourse": 1.32,
 	"BetValue": 10000000,
 
-	"ClubTraining": true,
-	"ClubTrainingSkill": "playmaking",
-	"ClubEuroAutoTransfer": false,
-	"ClubMatchBooster": true,
-	"ClubBoosterSkill": "defensive",
-	"ClubBoosterLevel": 1,
-	"ClubBoosterEngagementLevel": 1,
-	"ClubSalary": true,
-	"ClubMessageNotification": false,
+	"Team": {
+		"Training": true,
+		"TrainingSkill": "playmaking",
+		"EuroAutoTransfer": false,
+		"Salary": true,
+		"MessageNotification": false,
+		"GenerateRaportFile": false,
+
+		"MatchBooster": true,
+		"BoosterSkill": "defensive",
+
+		"CountryBoosterLevel": 1,
+		"CountryBoosterEngagementLevel": 1,
+
+		"LeagueBoosterLevel": 5,
+		"LeagueBoosterEngagementLevel": 1,
+
+		"TournamentBoosterLevel": 1,
+		"TournamentBoosterEngagementLevel": 1,
+
+		"SparingBoosterLevel": 1,
+		"SparingBoosterEngagementLevel": 5
+	},
 
 	"GetFreeStarter": true,
 	"GetFreeStarterEvent": true,
 
 	"CleanMailBox": true,
-
+	"AutoGetCardPack": true,
+	"AutoOpenCardPack": true,
 	"EatFood": true,
+
 	"Cantinee": {
 		"Resolver": true,
 		"CalendarChecker": true,
@@ -48,6 +64,11 @@
 		"GoldenBallsWarehouse": true,
 		"AmountGoldenBallsWarehouse": 100,
 		"SellingItems": true,
-		"DonateItemWarehouse": true
+		"DonateItemWarehouse": true,
+		"Augment": false,
+		"AugmentItemId": 69086,
+		"AugmentItemType": "epic",
+		"ExchangeBoosters": false,
+		"BoosterId": 5
 	}
 }

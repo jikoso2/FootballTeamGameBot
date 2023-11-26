@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static FootballteamBOT.ApiHelper.FTPContracts.BetResponse;
+﻿using static FootballteamBOT.ApiHelper.FTPContracts.BetResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.MatchesResponse;
 using System.Text.Json.Serialization;
 using static FootballteamBOT.ApiHelper.FTPContracts.MatchesResponse.Match;
@@ -158,6 +153,7 @@ namespace FootballteamBOT.ApiHelper
 				public int Energetic_locked { get; set; }
 				public int Gold { get; set; }
 				public int Silver { get; set; }
+				public int Cards_locked { get; set; }
 			}
 		}
 
@@ -271,21 +267,20 @@ namespace FootballteamBOT.ApiHelper
 
 			public long Max_bet { get; set; }
 			public int Left_bets { get; set; }
-			//public IEnumerable<Match> Items { get; set; }
 		}
 
 		public class PossibleMatchBetsResponseDict : PossibleMatchBetsResponseBase, IPossibleMatchBetsResponse
 		{
-			public IDictionary<int, Match> Matches { get; set; }
+			public IDictionary<int, Match>? Matches { get; set; }
 
-			public IEnumerable<Match> Items => Matches?.Values;
+			public IEnumerable<Match>? Items => Matches?.Values;
 		}
 
 		public class PossibleMatchBetsResponseList : PossibleMatchBetsResponseBase, IPossibleMatchBetsResponse
 		{
-			public IEnumerable<Match> Matches { get; set; }
+			public IEnumerable<Match>? Matches { get; set; }
 
-			public IEnumerable<Match> Items => Matches;
+			public IEnumerable<Match>? Items => Matches;
 		}
 
 		public interface IPossibleMatchBetsResponse
@@ -351,6 +346,8 @@ namespace FootballteamBOT.ApiHelper
 
 			public Dictionary<string, TeamMatch[]> Timetable { get; set; } = new Dictionary<string, TeamMatch[]>();
 
+			public CompositionModel Composition { get; set; } = new();
+
 			public class TeamEntity
 			{
 				public long Euro { get; set; }
@@ -368,6 +365,16 @@ namespace FootballteamBOT.ApiHelper
 				public string Start_date { get; set; } = string.Empty;
 				public Team Guest { get; set; } = new();
 				public Team Host { get; set; } = new();
+			}
+
+			public class CompositionModel
+			{
+				public PlayerCompositionModel[] Players { get; set; } = Array.Empty<PlayerCompositionModel>();
+			}
+
+			public class PlayerCompositionModel
+			{
+				public long Id { get; set; }
 			}
 		}
 
@@ -420,6 +427,63 @@ namespace FootballteamBOT.ApiHelper
 		public class CenterResponse
 		{
 			public int Used_Today { get; set; } = -1;
+		}
+
+		public class AugmentResponse
+		{
+			public Crystal[] Crystals { get; set; } = Array.Empty<Crystal>();
+
+			public class Crystal
+			{
+				public long Id { get; set; }
+				public long Amount { get; set; }
+				public string Type { get; set; } = string.Empty;
+
+			}
+		}
+
+		public class OpenCardResponse
+		{
+			public Prize[] Prizes { get; set; } = Array.Empty<Prize>();
+
+			public class Prize
+			{
+				public string Name { get; set; } = string.Empty;
+				public string Rarity { get; set; } = string.Empty;
+				public int Ovr { get; set; }
+			}
+		}
+
+		public class ProfileResponse
+		{
+			public Profile? User { get; set; }
+
+			public class Profile
+			{
+				public long Id { get; set; }
+				public string Name { get; set; }
+				public double Ranking_Position { get; set; }
+				public SkillsModel Skills { get; set; }
+			}
+
+			public class SkillsModel
+			{
+				public TrainingModel Training { get; set; }
+				public TrainingModel All { get; set; }
+				public TrainingModel Cards { get; set; }
+			}
+
+			public class TrainingModel
+			{
+				public double Condition { get; set; }
+				public double Defensive { get; set; }
+				public double Efficacy { get; set; }
+				public double Freekicks { get; set; }
+				public double Offensive { get; set; }
+				public double Playmaking { get; set; }
+				public double Pressing { get; set; }
+				public double Reading { get; set; }
+			}
 		}
 	}
 }

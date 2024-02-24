@@ -2,6 +2,7 @@
 using FootballteamBOT;
 using System.Globalization;
 using System.Text.Json;
+using System.Net.NetworkInformation;
 
 StartupProcedure();
 ReadRuntimeProperties(true);
@@ -10,31 +11,36 @@ var FtpApi = new FTPApi(RuntimeProps.Server, Configuration);
 FtpApi.Login(RuntimeProps.Email, RuntimeProps.Password, RuntimeProps.FingerPrint);
 
 
-//FtpApi.GenerateTeamStats(FtpApi.GetAccountState());
+//FtpApi.GetSellViewCards();
 
-//for (int i = 0; i < 40; i++)
+//for (int i = 0; i < 7; i++)
 //{
-//	FtpApi.OpenPack("bronze");
-//	Thread.Sleep(1000);
-//}
-//for (int i = 0; i < 13; i++)
-//{
-//	int itemidd = 12473595;
-//	FtpApi.Augment(itemidd, "epic");
+//    FtpApi.OpenPremiumPack("bronze", 5);
+//    Thread.Sleep(1000);
 //}
 
-//for (int i = 0; i < 35; i++)
+//for (int i = 0; i < 11; i++)
 //{
-//	int itemid = 4847682;
-//	int enchantLevel = 13;
+//	int itemidd = xxx;
+//	FtpApi.Augment(itemidd, "legendary");
+//	//FtpApi.Augment(RuntimeProps.Cantinee.AugmentItemId, RuntimeProps.Cantinee.AugmentItemType);
 
-//	var itemInfo = FtpApi.GetItemInfo(itemid);
+//    Thread.Sleep(500);
 
-//	if (itemInfo.Level == enchantLevel + 1)
-//		break;
+//}
 
-//	FtpApi.Enchanting(itemid, itemInfo);
-//	Thread.Sleep(1500);
+//for (int i = 0; i < 30; i++)
+//{
+//    int itemid = xxx;
+//    int enchantLevel = 15;
+
+//    var itemInfo = FtpApi.GetItemInfo(itemid);
+
+//    if (itemInfo.Level == enchantLevel + 1)
+//        break;
+
+//    FtpApi.Enchanting(itemid, itemInfo);
+//    Thread.Sleep(1500);
 //}
 
 
@@ -71,9 +77,6 @@ while (true)
 	if (RuntimeProps.BetManager && accountState.Bet.BetsLeft > 0)
 		SomethingDoneInLoop |= FtpApi.BetManager(accountState.Bet.Matches, RuntimeProps.BetValue, RuntimeProps.BetMinCourse, accountState);
 
-	if (RuntimeProps.TrickLearn && accountState.Trick.Queue == null)
-		SomethingDoneInLoop |= FtpApi.LearnTrick(RuntimeProps.Trick, accountState.Trick.Tricks);
-
 	if (RuntimeProps.EatFood && accountState.Canteen.Queue == null)
 		FoodResolver(accountState);
 
@@ -105,9 +108,6 @@ while (true)
 	if (RuntimeProps.Team.Salary)
 		SomethingDoneInLoop |= FtpApi.GetSalaryFromTeam(accountState);
 
-	if (RuntimeProps.TrickPlayer)
-		SomethingDoneInLoop |= FtpApi.TrickFight(accountState);
-
 	if (RuntimeProps.AutoGetCardPack && !accountState.Canteen.CanteenTasks.Where(a => !a.Finished).Any())
 		SomethingDoneInLoop |= FtpApi.GetCardPack(accountState);
 
@@ -123,6 +123,15 @@ while (true)
 	if (RuntimeProps.Team.GenerateRaportFile)
 		SomethingDoneInLoop |= FtpApi.GenerateTeamStats(accountState);
 
+	if ((accountState.ServerTimeHour() >= 18 && accountState.ServerTimeHour() < 23) && accountState.FightId == 0 && accountState.RankedDuels < RuntimeProps.RankedDuels)
+		SomethingDoneInLoop |= FtpApi.AssignToCardDuel(accountState.DuelsDeck);
+
+	if (accountState.ServerTimeHour() < 18 && accountState.FightId == 0 && accountState.QuickDuels < RuntimeProps.QuickDuels)
+		SomethingDoneInLoop |= FtpApi.AssignToCardDuel(accountState.DuelsDeck);
+
+	if (accountState.FightId != 0)
+		SomethingDoneInLoop |= FtpApi.SelectCardToDuel(accountState.DuelsDeck, accountState.FightId);
+
 	if (!SomethingDoneInLoop)
 		Thread.Sleep(40000);
 }
@@ -137,15 +146,15 @@ void LogAccountState(AccountState accState)
 	Logger.LogI($"Canteen: {accState.Canteen.Used} / {accState.Canteen.Limit}. {currentCanteenState}", "USERSTATE-CANTEEN");
 	Logger.LogI($"Premium keys: {accState.Packs.PremiumKeys}, Free keys: {accState.Packs.FreeKeys}. Packs: bronze:{accState.Packs.Bronze}, silver:{accState.Packs.Silver}, gold:{accState.Packs.Gold}, energy:{accState.Packs.Energy}", "USERSTATE-PACKS");
 	Logger.LogI($"Bets left: {accState.Bet.BetsLeft}. Today points: {Math.Round(accState.Bet.DayPoints, 2)}, profit: {accState.Bet.DayProfit.ToString("C", CultureInfo.CurrentCulture)} ", "USERSTATE-BETS");
+	Logger.LogI($"RankedDuels: {accState.RankedDuels} / {RuntimeProps.RankedDuels}. Quick Duels: {accState.QuickDuels} / {RuntimeProps.QuickDuels}", "USERSTATE-CARD-DUELS");
 
 	if (accState.Job.Queue != null)
 		Logger.LogI($"Current job: {accState.Job.Queue.Job_id}", "USERSTATE-JOB");
 
-	if (accState.Trick.Queue != null)
-		Logger.LogI($"Current training trick: {accState.Trick.Queue.Trick_name}. Remaining: {TimeSpan.FromSeconds(accState.Trick.Queue.Left_seconds):hh\\:mm\\:ss}", "USERSTATE-TRICKS");
+	if (accState.FightId != 0)
+		Logger.LogI($"Current card-duel: {accState.FightId}", "USERSTATE-CARD-DUELS");
 
 	Logger.LogI($"{accState.Team.Name}: [{accState.Team.Ovr}] Building Euro: {accState.Team.EuroBuilding.ToString("C", CultureInfo.CurrentCulture)}", "USERSTATE-TEAM");
-
 }
 
 
@@ -171,7 +180,7 @@ void CantineeTasksResolver(AccountState accState)
 			case "golden_balls_warehouse":
 				Logger.LogI("GB-WAREHOUSE - left to do", opName);
 				if (RuntimeProps.Cantinee.GoldenBallsWarehouse)
-					SomethingDoneInLoop |= FtpApi.DonateWarehouse(accState, "golden_balls", RuntimeProps.Cantinee.AmountGoldenBallsWarehouse);
+					SomethingDoneInLoop |= FtpApi.DonateTeamWarehouseGB(accState, RuntimeProps.Cantinee.AmountGoldenBallsWarehouse);
 				break;
 
 			case "material_warehouse":
@@ -228,6 +237,12 @@ void CantineeTasksResolver(AccountState accState)
 				Logger.LogI($"TRAINING (1250/{accState.TrainedToday}) - left to do ", opName);
 				break;
 
+			case "ranking_duels":
+				Logger.LogI("RANKING-DUELS - left to do", opName);
+				break;
+			case "no_ranking_duels":
+				Logger.LogI("NO-RANKING-DUELS - left to do", opName);
+				break;
 			default:
 				break;
 		}
@@ -249,6 +264,8 @@ void FoodResolver(AccountState accState)
 		case 2:
 			if (accState.ServerTimeHour() >= 16 || accState.Canteen.Used == 28)
 				SomethingDoneInLoop |= FtpApi.EatMeal(4);
+			break;
+		case int n when (n < 0):
 			break;
 		default:
 			SomethingDoneInLoop |= FtpApi.EatMeal(1);
@@ -329,9 +346,8 @@ public partial class Program
 				RuntimeProps.Training.Skill = runtimePropsFromConfig.Training.Skill;
 				RuntimeProps.Training.Specialize = runtimePropsFromConfig.Training.Specialize;
 
-				RuntimeProps.TrickLearn = runtimePropsFromConfig.TrickLearn;
-				RuntimeProps.Trick = runtimePropsFromConfig.Trick;
-				RuntimeProps.TrickPlayer = runtimePropsFromConfig.TrickPlayer;
+				RuntimeProps.RankedDuels = runtimePropsFromConfig.RankedDuels;
+				RuntimeProps.QuickDuels = runtimePropsFromConfig.QuickDuels;
 
 				RuntimeProps.BetManager = runtimePropsFromConfig.BetManager;
 				RuntimeProps.BetMinCourse = runtimePropsFromConfig.BetMinCourse;
@@ -348,7 +364,7 @@ public partial class Program
 				RuntimeProps.Team.GenerateRaportFile = runtimePropsFromConfig.Team.GenerateRaportFile;
 
 				RuntimeProps.Team.CountryBoosterLevel = runtimePropsFromConfig.Team.CountryBoosterLevel;
-				RuntimeProps.Team.CountryEngagementLevel = runtimePropsFromConfig.Team.CountryEngagementLevel;
+				RuntimeProps.Team.CountryBoosterEngagementLevel = runtimePropsFromConfig.Team.CountryBoosterEngagementLevel;
 
 				RuntimeProps.Team.LeagueBoosterLevel = runtimePropsFromConfig.Team.LeagueBoosterLevel;
 				RuntimeProps.Team.LeagueBoosterEngagementLevel = runtimePropsFromConfig.Team.LeagueBoosterEngagementLevel;
@@ -382,7 +398,6 @@ public partial class Program
 				RuntimeProps.Cantinee.AugmentItemType = runtimePropsFromConfig.Cantinee.AugmentItemType;
 				RuntimeProps.Cantinee.ExchangeBoosters = runtimePropsFromConfig.Cantinee.ExchangeBoosters;
 				RuntimeProps.Cantinee.BoosterId = runtimePropsFromConfig.Cantinee.BoosterId;
-
 			}
 			else
 				throw new ArgumentException("Runtimeproperties doesn't exist.");

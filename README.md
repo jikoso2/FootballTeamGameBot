@@ -42,8 +42,8 @@ Prepare to using application:
 * TrainingCenterAfterLimit - use training center after reach training limit
 * TrainingCenterAmount - amount in center training (500,300,200,100)
 * TrainingCenterSkill - skill to training in center
-* TrickLearn - activate trick module (true,false)
-* Trick - select trick to training
+* RankedDuels - amount to assign for ranked duels (18-23)
+* QuickDuels - amount to assign for quick duels
 * BetManager - activate bet manager
 * BetMinCourse - course to bet
 * BetValue -bet $ (10kk - 10k)
@@ -82,13 +82,13 @@ Select matches to bet:
 - overall proportion more than 0.6 after divide maxOVR/minOVR including 5% bonus home match
 - overall better team more than 60
 
-#### Trick Trainer
-Trick trainer using binary search algorithm (with 10 possibilites max 4 tries), 5 per day.
+#### Card Duels
+Card Duels automatic assign to card-duel and use first card from the deck in first round.
 
 #### AutoFood
-Between 0AM-15PM you eat only 15min meals
-After 15PM eating 4h meal - (start faster when you ate 28/30 meals)
-After 17PM eating 12h meal- (start faster when you ate 29/30 meals)
+Between 0AM-16PM you eat only 15min meals
+After 16PM eating 4h meal - (start faster when you ate 28/30 meals)
+After 18PM eating 12h meal- (start faster when you ate 29/30 meals)
 
 #### CantineeResolver
 Checks unfinished and complete daily quests to unlock meals.

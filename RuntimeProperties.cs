@@ -2,265 +2,264 @@
 
 namespace FootballteamBOT
 {
-	public class RuntimeProperties
-	{
-		public RuntimeProperties() { Training = new TrainingProperties() { NotifyChange = true }; Cantinee = new CantineeProperties() { NotifyChange = true }; Team = new TeamProperties() { NotifyChange = true }; }
+    public class RuntimeProperties
+    {
+        public RuntimeProperties() { Training = new TrainingProperties() { NotifyChange = true }; Cantinee = new CantineeProperties() { NotifyChange = true }; Team = new TeamProperties() { NotifyChange = true }; }
 
-		private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
-		{
-			if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-			if (NotifyChange)
-				Logger.LogRuntimesProps($"{propertyName} : {field} => {value}", "RUNTIME-PROPERTIES");
-			field = value;
-			return true;
-		}
+        private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            if (NotifyChange)
+                Logger.LogRuntimesProps($"{propertyName} : {field} => {value}", "RUNTIME-PROPERTIES");
+            field = value;
+            return true;
+        }
 
-		#region Global
-		public bool NotifyChange { get; set; }
+        #region Global
+        public bool NotifyChange { get; set; }
 
-		private string email = string.Empty;
-		public string Email { get => email; set => SetField(ref email, value); }
+        private string email = string.Empty;
+        public string Email { get => email; set => SetField(ref email, value); }
 
-		public string Password { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
 
-		private string fingerPrint = string.Empty;
-		public string FingerPrint { get => fingerPrint; set => SetField(ref fingerPrint, value); }
+        private string fingerPrint = string.Empty;
+        public string FingerPrint { get => fingerPrint; set => SetField(ref fingerPrint, value); }
 
-		private string server = string.Empty;
-		public string Server { get => server; set => SetField(ref server, value); }
+        private string server = string.Empty;
+        public string Server { get => server; set => SetField(ref server, value); }
 
-		#endregion
+        #endregion
 
 
-		#region Training
-		private int trainingLimit;
-		public int TrainingLimit { get => trainingLimit; set => SetField(ref trainingLimit, value); }
+        #region Training
+        private int trainingLimit;
+        public int TrainingLimit { get => trainingLimit; set => SetField(ref trainingLimit, value); }
 
-		private bool trainingCenterAfterLimit;
-		public bool TrainingCenterAfterLimit { get => trainingCenterAfterLimit; set => SetField(ref trainingCenterAfterLimit, value); }
+        private bool trainingCenterAfterLimit;
+        public bool TrainingCenterAfterLimit { get => trainingCenterAfterLimit; set => SetField(ref trainingCenterAfterLimit, value); }
 
-		private int trainingCenterAmount;
-		public int TrainingCenterAmount { get => trainingCenterAmount; set => SetField(ref trainingCenterAmount, value); }
+        private int trainingCenterAmount;
+        public int TrainingCenterAmount { get => trainingCenterAmount; set => SetField(ref trainingCenterAmount, value); }
 
-		private string trainingCenterSkill = string.Empty;
-		public string TrainingCenterSkill { get => trainingCenterSkill; set => SetField(ref trainingCenterSkill, value); }
+        private string trainingCenterSkill = string.Empty;
+        public string TrainingCenterSkill { get => trainingCenterSkill; set => SetField(ref trainingCenterSkill, value); }
 
-		public TrainingProperties Training { get; set; }
-		#endregion
+        public TrainingProperties Training { get; set; }
+        #endregion
 
 
-		#region Trick
-		private bool trickLearn;
-		public bool TrickLearn { get => trickLearn; set => SetField(ref trickLearn, value); }
+        #region CardDuels
 
-		private string trick = string.Empty;
-		public string Trick { get => trick; set => SetField(ref trick, value); }
+        private int rankedDuels;
+        public int RankedDuels { get => rankedDuels; set => SetField(ref rankedDuels, value); }
 
-		private bool trickPlayer;
-		public bool TrickPlayer { get => trickPlayer; set => SetField(ref trickPlayer, value); }
-		#endregion
+        private int quickDuels;
+        public int QuickDuels { get => quickDuels; set => SetField(ref quickDuels, value); }
 
+        #endregion
 
-		#region Bets
-		private bool betManager;
-		public bool BetManager { get => betManager; set => SetField(ref betManager, value); }
 
-		private double betMinCourse;
-		public double BetMinCourse { get => betMinCourse; set => SetField(ref betMinCourse, value); }
+        #region Bets
+        private bool betManager;
+        public bool BetManager { get => betManager; set => SetField(ref betManager, value); }
 
-		private int betValue;
-		public int BetValue { get => betValue; set => SetField(ref betValue, value); }
-		#endregion
+        private double betMinCourse;
+        public double BetMinCourse { get => betMinCourse; set => SetField(ref betMinCourse, value); }
 
+        private int betValue;
+        public int BetValue { get => betValue; set => SetField(ref betValue, value); }
+        #endregion
 
-		#region Team
 
-		public TeamProperties Team { get; set; }
+        #region Team
 
-		#endregion
+        public TeamProperties Team { get; set; }
 
+        #endregion
 
-		#region Starters
-		private bool getFreeStarter;
-		public bool GetFreeStarter { get => getFreeStarter; set => SetField(ref getFreeStarter, value); }
 
-		private bool getFreeStarterEvent;
-		public bool GetFreeStarterEvent { get => getFreeStarterEvent; set => SetField(ref getFreeStarterEvent, value); }
-		#endregion
+        #region Starters
+        private bool getFreeStarter;
+        public bool GetFreeStarter { get => getFreeStarter; set => SetField(ref getFreeStarter, value); }
 
+        private bool getFreeStarterEvent;
+        public bool GetFreeStarterEvent { get => getFreeStarterEvent; set => SetField(ref getFreeStarterEvent, value); }
+        #endregion
 
-		#region OtherProps
-		private bool cleanMailBox;
-		public bool CleanMailBox { get => cleanMailBox; set => SetField(ref cleanMailBox, value); }
 
-		private bool eatFood;
-		public bool EatFood { get => eatFood; set => SetField(ref eatFood, value); }
+        #region OtherProps
+        private bool cleanMailBox;
+        public bool CleanMailBox { get => cleanMailBox; set => SetField(ref cleanMailBox, value); }
 
-		private bool autoGetCardPack;
-		public bool AutoGetCardPack { get => autoGetCardPack; set => SetField(ref autoGetCardPack, value); }
+        private bool eatFood;
+        public bool EatFood { get => eatFood; set => SetField(ref eatFood, value); }
 
-		private bool autoOpenCardPacks;
-		public bool AutoOpenCardPacks { get => autoOpenCardPacks; set => SetField(ref autoOpenCardPacks, value); }
+        private bool autoGetCardPack;
+        public bool AutoGetCardPack { get => autoGetCardPack; set => SetField(ref autoGetCardPack, value); }
 
-		private long targetEuro;
-		public long TargetEuro { get => targetEuro; set => SetField(ref targetEuro, value); }
+        private bool autoOpenCardPacks;
+        public bool AutoOpenCardPacks { get => autoOpenCardPacks; set => SetField(ref autoOpenCardPacks, value); }
 
-		private int jobType;
-		public int JobType { get => jobType; set => SetField(ref jobType, value); }
-		#endregion
+        private long targetEuro;
+        public long TargetEuro { get => targetEuro; set => SetField(ref targetEuro, value); }
 
+        private int jobType;
+        public int JobType { get => jobType; set => SetField(ref jobType, value); }
+        #endregion
 
-		#region Cantinee
-		public CantineeProperties Cantinee { get; set; }
-		#endregion
 
-		public class TeamProperties
-		{
-			private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
-			{
-				if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-				if (NotifyChange)
-					Logger.LogRuntimesProps($"TeamProperties.{propertyName} : {field} => {value}", "RUNTIME-PROPERTIES");
-				field = value;
-				return true;
-			}
+        #region Cantinee
+        public CantineeProperties Cantinee { get; set; }
+        #endregion
 
-			public bool NotifyChange { get; set; }
+        public class TeamProperties
+        {
+            private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+            {
+                if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+                if (NotifyChange)
+                    Logger.LogRuntimesProps($"TeamProperties.{propertyName} : {field} => {value}", "RUNTIME-PROPERTIES");
+                field = value;
+                return true;
+            }
 
-			private bool training;
-			public bool Training { get => training; set => SetField(ref training, value); }
+            public bool NotifyChange { get; set; }
 
-			private string trainingSkill = string.Empty;
-			public string TrainingSkill { get => trainingSkill; set => SetField(ref trainingSkill, value); }
+            private bool training;
+            public bool Training { get => training; set => SetField(ref training, value); }
 
-			private bool euroAutoTransfer;
-			public bool EuroAutoTransfer { get => euroAutoTransfer; set => SetField(ref euroAutoTransfer, value); }
+            private string trainingSkill = string.Empty;
+            public string TrainingSkill { get => trainingSkill; set => SetField(ref trainingSkill, value); }
 
-			private bool matchBooster;
-			public bool MatchBooster { get => matchBooster; set => SetField(ref matchBooster, value); }
+            private bool euroAutoTransfer;
+            public bool EuroAutoTransfer { get => euroAutoTransfer; set => SetField(ref euroAutoTransfer, value); }
 
-			private string boosterSkill = string.Empty;
-			public string BoosterSkill { get => boosterSkill; set => SetField(ref boosterSkill, value); }
+            private bool matchBooster;
+            public bool MatchBooster { get => matchBooster; set => SetField(ref matchBooster, value); }
 
-			private bool salary;
-			public bool Salary { get => salary; set => SetField(ref salary, value); }
+            private string boosterSkill = string.Empty;
+            public string BoosterSkill { get => boosterSkill; set => SetField(ref boosterSkill, value); }
 
-			private bool autoSparingSignUp;
-			public bool AutoSparingSignUp { get => autoSparingSignUp; set => SetField(ref autoSparingSignUp, value); }
+            private bool salary;
+            public bool Salary { get => salary; set => SetField(ref salary, value); }
 
-			private bool messageNotification;
-			public bool MessageNotification { get => messageNotification; set => SetField(ref messageNotification, value); }
+            private bool autoSparingSignUp;
+            public bool AutoSparingSignUp { get => autoSparingSignUp; set => SetField(ref autoSparingSignUp, value); }
 
-			private int countryBoosterLevel;
-			public int CountryBoosterLevel { get => countryBoosterLevel; set => SetField(ref countryBoosterLevel, value); }
+            private bool messageNotification;
+            public bool MessageNotification { get => messageNotification; set => SetField(ref messageNotification, value); }
 
-			private int countryBoosterEngagementLevel;
-			public int CountryEngagementLevel { get => countryBoosterEngagementLevel; set => SetField(ref countryBoosterEngagementLevel, value); }
+            private int countryBoosterLevel;
+            public int CountryBoosterLevel { get => countryBoosterLevel; set => SetField(ref countryBoosterLevel, value); }
 
-			private int leagueBoosterLevel;
-			public int LeagueBoosterLevel { get => leagueBoosterLevel; set => SetField(ref leagueBoosterLevel, value); }
+            private int countryBoosterEngagementLevel;
+            public int CountryBoosterEngagementLevel { get => countryBoosterEngagementLevel; set => SetField(ref countryBoosterEngagementLevel, value); }
 
-			private int leagueBoosterEngagementLevel;
-			public int LeagueBoosterEngagementLevel { get => leagueBoosterEngagementLevel; set => SetField(ref leagueBoosterEngagementLevel, value); }
+            private int leagueBoosterLevel;
+            public int LeagueBoosterLevel { get => leagueBoosterLevel; set => SetField(ref leagueBoosterLevel, value); }
 
-			private int tournamentBoosterLevel;
-			public int TournamentBoosterLevel { get => tournamentBoosterLevel; set => SetField(ref tournamentBoosterLevel, value); }
+            private int leagueBoosterEngagementLevel;
+            public int LeagueBoosterEngagementLevel { get => leagueBoosterEngagementLevel; set => SetField(ref leagueBoosterEngagementLevel, value); }
 
-			private int tournamentBoosterEngagementLevel;
-			public int TournamentBoosterEngagementLevel { get => tournamentBoosterEngagementLevel; set => SetField(ref tournamentBoosterEngagementLevel, value); }
+            private int tournamentBoosterLevel;
+            public int TournamentBoosterLevel { get => tournamentBoosterLevel; set => SetField(ref tournamentBoosterLevel, value); }
 
-			private int sparingBoosterLevel;
-			public int SparingBoosterLevel { get => sparingBoosterLevel; set => SetField(ref sparingBoosterLevel, value); }
+            private int tournamentBoosterEngagementLevel;
+            public int TournamentBoosterEngagementLevel { get => tournamentBoosterEngagementLevel; set => SetField(ref tournamentBoosterEngagementLevel, value); }
 
-			private int sparingBoosterEngagementLevel;
-			public int SparingBoosterEngagementLevel { get => sparingBoosterEngagementLevel; set => SetField(ref sparingBoosterEngagementLevel, value); }
+            private int sparingBoosterLevel;
+            public int SparingBoosterLevel { get => sparingBoosterLevel; set => SetField(ref sparingBoosterLevel, value); }
 
-			private bool generateRaportFile;
-			public bool GenerateRaportFile { get => generateRaportFile; set => SetField(ref generateRaportFile, value); }
+            private int sparingBoosterEngagementLevel;
+            public int SparingBoosterEngagementLevel { get => sparingBoosterEngagementLevel; set => SetField(ref sparingBoosterEngagementLevel, value); }
 
-		}
+            private bool generateRaportFile;
+            public bool GenerateRaportFile { get => generateRaportFile; set => SetField(ref generateRaportFile, value); }
 
-		public class TrainingProperties
-		{
-			private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
-			{
-				if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-				if (NotifyChange)
-					Logger.LogRuntimesProps($"TrainingProperties.{propertyName} : {field} => {value}", "RUNTIME-PROPERTIES");
-				field = value;
-				return true;
-			}
+        }
 
-			public bool NotifyChange { get; set; }
+        public class TrainingProperties
+        {
+            private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+            {
+                if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+                if (NotifyChange)
+                    Logger.LogRuntimesProps($"TrainingProperties.{propertyName} : {field} => {value}", "RUNTIME-PROPERTIES");
+                field = value;
+                return true;
+            }
 
-			private string skill = String.Empty;
-			public string Skill { get => skill; set => SetField(ref skill, value); }
+            public bool NotifyChange { get; set; }
 
-			private bool specialize;
-			public bool Specialize { get => specialize; set => SetField(ref specialize, value); }
+            private string skill = String.Empty;
+            public string Skill { get => skill; set => SetField(ref skill, value); }
 
-			private bool learning;
-			public bool Learning { get => learning; set => SetField(ref learning, value); }
+            private bool specialize;
+            public bool Specialize { get => specialize; set => SetField(ref specialize, value); }
 
-			private string training1 = String.Empty;
-			public string Training1 { get => training1; set => SetField(ref training1, value); }
+            private bool learning;
+            public bool Learning { get => learning; set => SetField(ref learning, value); }
 
-			private string training2 = String.Empty;
-			public string Training2 { get => training2; set => SetField(ref training2, value); }
+            private string training1 = String.Empty;
+            public string Training1 { get => training1; set => SetField(ref training1, value); }
 
-			private bool useBot;
-			public bool UseBot { get => useBot; set => SetField(ref useBot, value); }
+            private string training2 = String.Empty;
+            public string Training2 { get => training2; set => SetField(ref training2, value); }
 
-		}
+            private bool useBot;
+            public bool UseBot { get => useBot; set => SetField(ref useBot, value); }
 
-		public class CantineeProperties
-		{
-			private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
-			{
-				if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-				if (NotifyChange)
-					Logger.LogRuntimesProps($"CanteenProperties.{propertyName} : {field} => {value}", "CANTEEN-PROPERTIES");
-				field = value;
-				return true;
-			}
+        }
 
-			public bool NotifyChange { get; set; }
+        public class CantineeProperties
+        {
+            private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = "")
+            {
+                if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+                if (NotifyChange)
+                    Logger.LogRuntimesProps($"CanteenProperties.{propertyName} : {field} => {value}", "CANTEEN-PROPERTIES");
+                field = value;
+                return true;
+            }
 
-			private bool resolver;
-			public bool Resolver { get => resolver; set => SetField(ref resolver, value); }
+            public bool NotifyChange { get; set; }
 
-			private bool calendarChecker;
-			public bool CalendarChecker { get => calendarChecker; set => SetField(ref calendarChecker, value); }
+            private bool resolver;
+            public bool Resolver { get => resolver; set => SetField(ref resolver, value); }
 
-			private bool jobs;
-			public bool Jobs { get => jobs; set => SetField(ref jobs, value); }
+            private bool calendarChecker;
+            public bool CalendarChecker { get => calendarChecker; set => SetField(ref calendarChecker, value); }
 
-			private bool goldenBallsWarehouse;
-			public bool GoldenBallsWarehouse { get => goldenBallsWarehouse; set => SetField(ref goldenBallsWarehouse, value); }
+            private bool jobs;
+            public bool Jobs { get => jobs; set => SetField(ref jobs, value); }
 
-			private int amountGoldenBallsWarehouse;
-			public int AmountGoldenBallsWarehouse { get => amountGoldenBallsWarehouse; set => SetField(ref amountGoldenBallsWarehouse, value); }
+            private bool goldenBallsWarehouse;
+            public bool GoldenBallsWarehouse { get => goldenBallsWarehouse; set => SetField(ref goldenBallsWarehouse, value); }
 
-			private bool sellingItems;
-			public bool SellingItems { get => sellingItems; set => SetField(ref sellingItems, value); }
+            private int amountGoldenBallsWarehouse;
+            public int AmountGoldenBallsWarehouse { get => amountGoldenBallsWarehouse; set => SetField(ref amountGoldenBallsWarehouse, value); }
 
-			private bool donateItemWarehouse;
-			public bool DonateItemWarehouse { get => donateItemWarehouse; set => SetField(ref donateItemWarehouse, value); }
+            private bool sellingItems;
+            public bool SellingItems { get => sellingItems; set => SetField(ref sellingItems, value); }
 
-			private bool augment;
-			public bool Augment { get => augment; set => SetField(ref augment, value); }
+            private bool donateItemWarehouse;
+            public bool DonateItemWarehouse { get => donateItemWarehouse; set => SetField(ref donateItemWarehouse, value); }
 
-			private long augmentItemId;
-			public long AugmentItemId { get => augmentItemId; set => SetField(ref augmentItemId, value); }
+            private bool augment;
+            public bool Augment { get => augment; set => SetField(ref augment, value); }
 
-			private string augmentItemType = string.Empty;
-			public string AugmentItemType { get => augmentItemType; set => SetField(ref augmentItemType, value); }
+            private long augmentItemId;
+            public long AugmentItemId { get => augmentItemId; set => SetField(ref augmentItemId, value); }
 
-			private bool exchangeBoosters;
-			public bool ExchangeBoosters { get => exchangeBoosters; set => SetField(ref exchangeBoosters, value); }
+            private string augmentItemType = string.Empty;
+            public string AugmentItemType { get => augmentItemType; set => SetField(ref augmentItemType, value); }
 
-			private long boosterId;
-			public long BoosterId { get => boosterId; set => SetField(ref boosterId, value); }
-		}
-	}
+            private bool exchangeBoosters;
+            public bool ExchangeBoosters { get => exchangeBoosters; set => SetField(ref exchangeBoosters, value); }
+
+            private long boosterId;
+            public long BoosterId { get => boosterId; set => SetField(ref boosterId, value); }
+        }
+    }
 }

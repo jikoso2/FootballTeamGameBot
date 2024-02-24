@@ -94,6 +94,7 @@ namespace FootballteamBOT.ApiHelper
 			{
 				public string Name { get; set; } = string.Empty;
 				public long Euro { get; set; }
+				public long Credits { get; set; }
 				public long Energy { get; set; }
 				public long Fight_id { get; set; }
 				public double Defensive { get; set; }
@@ -168,35 +169,6 @@ namespace FootballteamBOT.ApiHelper
 				public long Start { get; set; }
 				public long User_id { get; set; }
 				public long Income { get; set; }
-			}
-		}
-
-		public class TricksResponse
-		{
-			public Trick_Queue Queue { get; set; } = new();
-			public Trick[] Tricks { get; set; } = Array.Empty<Trick>();
-
-			public class Trick_Queue
-			{
-				public long Id { get; set; }
-				public long Left_seconds { get; set; }
-				public long Level { get; set; }
-				public string Trick_name { get; set; } = string.Empty;
-			}
-
-			public class Trick
-			{
-				public string Name { get; set; } = string.Empty;
-				public int Current_level { get; set; }
-				public int[][] Disabled { get; set; } = Array.Empty<int[]>();
-				public bool[] Guessed { get; set; } = Array.Empty<bool>();
-				public int Learn_level { get; set; }
-				public string Key { get; set; } = string.Empty;
-
-				public enum EnumTricks
-				{
-					przewrotka, przerzutka, zonglerka, crossover, nozyce, pietka, rabona, ruletka, wolej, zwod, podcinka, elastico, kopniecie, hokus, xover
-				}
 			}
 		}
 
@@ -471,6 +443,22 @@ namespace FootballteamBOT.ApiHelper
 				public TrainingModel Training { get; set; }
 				public TrainingModel All { get; set; }
 				public TrainingModel Cards { get; set; }
+				public double AverageTraining
+				{
+					get
+					{
+						var sum = Training.Playmaking + Training.Condition + Training.Defensive + Training.Efficacy + Training.Freekicks + Training.Offensive + Training.Pressing + Training.Reading;
+						return Double.Round(sum / 8.0, 3);
+					}
+				}
+				public double AverageCards
+				{
+					get
+					{
+						var sum = Cards.Playmaking + Cards.Condition + Cards.Defensive + Cards.Efficacy + Cards.Freekicks + Cards.Offensive + Cards.Pressing + Cards.Reading;
+						return Double.Round(sum / 8.0, 3);
+					}
+				}
 			}
 
 			public class TrainingModel
@@ -485,7 +473,59 @@ namespace FootballteamBOT.ApiHelper
 				public double Reading { get; set; }
 			}
 		}
+
+		public class SellCardsResponse
+		{
+			public CardsModel[] Cards { get; set; } = Array.Empty<CardsModel>();
+			public DuplicateModel[] Duplicates { get; set; } = Array.Empty<DuplicateModel>();
+
+			public class CardsModel
+			{
+				public long Card_Id { get; set; }
+				public long Ovr { get; set; }
+				public long Id { get; set; }
+				public string Rarity { get; set; }
+				public string Name { get; set; }
+			}
+
+			public class DuplicateModel
+			{
+				public int Amount { get; set; }
+				public long card_id { get; set; }
+				public string Rarity { get; set; }
+			}
+		}
+
+		public class PackPriceResponse
+		{
+			public AuctionModel[] Auctions { get; set; } = Array.Empty<AuctionModel>();
+
+			public class AuctionModel
+			{
+				public int price { get; set; }
+				public int quantity { get; set; }
+				public string type { get; set; } = string.Empty;
+			}
+		}
+
+		public class DuelsResponse
+		{
+			public int Ranked_Played_Today { get; set; }
+			public int Quick_Played_Today { get; set; }
+			public DeckModel[] My_Decks { get; set; } = Array.Empty<DeckModel>();
+
+			public class DeckModel
+			{
+				public int Id { get; set; }
+				public string Name { get; set; } = string.Empty;
+				public CardModel[] Cards { get; set; } = Array.Empty<CardModel>();
+
+				public class CardModel
+				{
+					public long Id { get; set; }
+					public string Name { get; set; } = string.Empty;
+				}
+			}
+		}
 	}
 }
-
-

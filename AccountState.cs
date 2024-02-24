@@ -1,9 +1,9 @@
 ﻿using static FootballteamBOT.ApiHelper.FTPContracts.CanteenResponse;
+using static FootballteamBOT.ApiHelper.FTPContracts.DuelsResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.ItemsResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.JobsResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.MatchesResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.TeamResponse;
-using static FootballteamBOT.ApiHelper.FTPContracts.TricksResponse;
 
 namespace FootballteamBOT
 {
@@ -11,6 +11,7 @@ namespace FootballteamBOT
 	{
 		public string Name { get; set; } = string.Empty;
 		public long Euro { get; set; }
+		public long Credits { get; set; }
 		public long Energy { get; set; }
 		public double Defensive { get; set; }
 		public double Pressing { get; set; }
@@ -21,12 +22,14 @@ namespace FootballteamBOT
 		public int TeamId { get; set; }
 		public int TrainingCenterUsedToday { get; set; }
 		public long FightId { get; set; }
+		public int QuickDuels { get; set; }
+		public int RankedDuels { get; set; }
 		public bool CalendarFinished { get; set; }
+		public DeckModel DuelsDeck { get; set; } = new DeckModel();
 		public TimeZoneInfo TimeZone { get; set; } = TimeZoneInfo.Utc;
 		public CanteenState Canteen { get; set; } = new CanteenState();
 		public PacksState Packs { get; set; } = new PacksState();
 		public JobState Job { get; set; } = new JobState();
-		public TrickState Trick { get; set; } = new TrickState();
 		public ItemState Item { get; set; } = new ItemState();
 		public BetState Bet { get; set; } = new BetState();
 		public TeamState Team { get; set; } = new TeamState();
@@ -57,12 +60,6 @@ namespace FootballteamBOT
 		public class JobState
 		{
 			public Jobs_Queue Queue { get; set; } = new();
-		}
-
-		public class TrickState
-		{
-			public Trick_Queue Queue { get; set; } = new();
-			public Trick[] Tricks { get; set; } = Array.Empty<Trick>();
 		}
 	}
 

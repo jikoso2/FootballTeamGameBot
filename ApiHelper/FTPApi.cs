@@ -43,6 +43,7 @@ namespace FootballteamBOT.ApiHelper
 		public long assignedCardFightId = 0;
 		public bool inTrickQueue = false;
 		public List<long> doneMatches = new();
+		public List<long> walkoverBetMatch = new();
 
 
 		public string SendPostReq(string url, object body, bool ignoreFault = false)
@@ -734,7 +735,7 @@ namespace FootballteamBOT.ApiHelper
 			{
 				foreach (var match in matches)
 				{
-					if (accState.Bet.BetsLeft == 0)
+					if (accState.Bet.BetsLeft == 0 || walkoverBetMatch.Contains(match.Id))
 						break;
 
 					if (accState.Euro < maxBetAmount * 2)
@@ -763,12 +764,19 @@ namespace FootballteamBOT.ApiHelper
 								euro = maxBetAmount
 							};
 
-							SendPostReq($"{FTPEndpoint}/games/bets", betRequest);
+							var betResult = SendSpecPostReq($"{FTPEndpoint}/games/bets", betRequest);
 
-							Logger.LogD($"Betting {betRequest.type} for {betRequest.euro}, course: {betCourse}, match: {match.Id} ({match.Host.Name} - {match.Guest.Name})", opName);
-							accState.Bet.BetsLeft -= 1;
-							accState.Euro -= maxBetAmount;
-							result |= true;
+							if (betResult.Item2 != HttpStatusCode.OK)
+							{
+								walkoverBetMatch.Add(match.Id);
+							}
+							else
+							{
+								Logger.LogD($"Betting {betRequest.type} for {betRequest.euro}, course: {betCourse}, match: {match.Id} ({match.Host.Name} - {match.Guest.Name})", opName);
+								accState.Bet.BetsLeft -= 1;
+								accState.Euro -= maxBetAmount;
+								result |= true;
+							}
 							Thread.Sleep(4000);
 						}
 					}

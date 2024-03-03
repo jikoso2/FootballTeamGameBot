@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
-    <Exec Command="copy $(OutDir)\Configurations\configuration1.json &quot;C:\Users\jaroslawc\OneDrive - media-press.tv S.A\Desktop\FTP\Configurations\configuration1.json&quot;;&#xD;&#xA;copy $(OutDir)\Configurations\configuration2.json &quot;C:\Users\jaroslawc\OneDrive - media-press.tv S.A\Desktop\FTP\Configurations\configuration2.json&quot;;&#xD;&#xA;copy &quot;C:\Users\jaroslawc\source\repos\FootballteamBOT\bin\publish\FootballteamBOT.exe&quot; &quot;C:\Users\jaroslawc\OneDrive - media-press.tv S.A\Desktop\FTP\FootballteamBOT.exe&quot;" />
+    <Exec Command="copy $(OutDir)\Configurations\configuration1.json &quot;C:\Users\jaroslawc\OneDrive - media-press.tv S.A\Desktop\FTP\Configurations\configuration1.json&quot;;&#xD;&#xA;copy $(OutDir)\Configurations\configuration2.json &quot;C:\Users\jaroslawc\OneDrive - media-press.tv S.A\Desktop\FTP\Configurations\configuration2.json&quot;;&#xD;&#xA;copy &quot;C:\Users\jaroslawc\source\repos\FootballteamBOT\bin\publish\FootballteamBOT.exe&quot; &quot;C:\Users\jaroslawc\OneDrive - media-press.tv S.A\Desktop\FTP\FootballteamBOT.exe&quot;&#xD;&#xA;copy &quot;C:\Users\jaroslawc\source\repos\FootballteamBOT\bin\publish\FootballteamBOT.exe&quot; &quot;C:\Users\jaroslawc\source\repos\FootballteamBOT\ExeFile\FootballteamBOT.exe&quot;" />
   </Target>
 
 </Project>

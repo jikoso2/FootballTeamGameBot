@@ -14,6 +14,9 @@ The user can use several accounts on many servers in parallel.
 Prepare to using application:
 * Download all files (.exe and configurations + trickFile) - https://github.com/jikoso2/FootballTeamGameBot/tree/main/ExeFile
 * Rename configurationx.json.template to configuration{x}.json (where {x} is a number, default : 1)
+
+  ![image](https://github.com/jikoso2/FootballTeamGameBot/assets/69644118/a02f858c-be51-44d1-ad41-5142a4ab7bb5)
+  
 * Fill configuration in .json
 * Start .exe and select number of configuration
 ![image](https://user-images.githubusercontent.com/69644118/233806073-f6b063cd-e536-40ab-b05e-f24b8822ba34.png)

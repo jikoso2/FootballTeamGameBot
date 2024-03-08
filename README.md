@@ -25,7 +25,7 @@ Prepare to using application:
 * ![#FFFFFF](https://via.placeholder.com/15/ffffff/ffffff.png) White - action performed by application
 
 ### How configure app
-![image]![image](https://github.com/jikoso2/FootballTeamGameBot/assets/69644118/51f34d5c-c3a2-41a9-9e98-f716c63a93d6)
+![image](https://github.com/jikoso2/FootballTeamGameBot/assets/69644118/98a3244d-0ebf-4c8e-92be-f09322cbb11d)
 
 * Email - account email
 * Password - account password

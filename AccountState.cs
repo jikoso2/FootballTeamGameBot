@@ -35,6 +35,7 @@ namespace FootballteamBOT
 		public TeamState Team { get; set; } = new TeamState();
 		public int ServerTimeDay() => Program.GetNowServerDataTime(TimeZone).Day;
 		public int ServerTimeHour() => Program.GetNowServerDataTime(TimeZone).Hour;
+		public int ServerTimeMinute() => Program.GetNowServerDataTime(TimeZone).Minute;
 
 		public class CanteenState
 		{

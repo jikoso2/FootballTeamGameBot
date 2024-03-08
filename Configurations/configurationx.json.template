@@ -3,6 +3,7 @@
 	"Password": "",
 	"FingerPrint": "",
 	"Server": "pl",
+	"IntervalRefresh": 45,
 
 	"TrainingLimit": 3050,
 	"Training": {
@@ -28,6 +29,9 @@
 	"Team": {
 		"Training": true,
 		"TrainingSkill": "playmaking",
+		"TrainingDrinkBooster": true,
+		"TrainingDrinkBoosterMinFreq": 15,
+
 		"EuroAutoTransfer": false,
 		"Salary": true,
 		"MessageNotification": false,

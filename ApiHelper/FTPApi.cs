@@ -34,6 +34,7 @@ namespace FootballteamBOT.ApiHelper
 		public int dayFreeStarter = 0;
 		public int dayFreeStarterEvent = 0;
 		public int dayTeamTraining = 0;
+		public int dayTeamTrainingDrinkBooster = 0;
 		public int dayCardPack = 0;
 		public int hourCalendar = 0;
 		public int salaryTeamDay = 0;
@@ -601,6 +602,61 @@ namespace FootballteamBOT.ApiHelper
 				}
 				else
 					return false;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				dayTeamTraining = accState.ServerTimeDay();
+				return false;
+			}
+		}
+
+		public bool TeamTrainingDrinkBooster(AccountState accState, int minimalFrequency)
+		{
+			var opName = "TEAM-TRAINING-DRINK-BOOSTER";
+			try
+			{
+				if (dayTeamTrainingDrinkBooster == accState.ServerTimeDay())
+					return false;
+
+				var teamTrainingResponse = SendGetReq($"{FTPEndpoint}/teams/{accState.TeamId}/training");
+				var teamTrainingGetResponse = DeserializeJson<TeamTrainingResponse>(teamTrainingResponse);
+
+				if (teamTrainingGetResponse.Active_Bonuses != null)
+					return false;
+
+				if (teamTrainingGetResponse.Signed_Members < minimalFrequency)
+				{
+					Logger.LogW($"There are {teamTrainingGetResponse.Signed_Members} members signed for club training. Required: {minimalFrequency}", opName);
+					return false;
+				}
+
+				var drinkRequest = SendGetReq($"{FTPEndpoint}/character/cloakroom/drinks");
+				var drinkGetResponse = DeserializeJson<DrinksResponse>(drinkRequest);
+
+				var drinki4tier = drinkGetResponse.Items.FirstOrDefault(a => a.Drink == "drink_tier_4_team_training");
+				var drinki5tier = drinkGetResponse.Items.FirstOrDefault(a => a.Drink == "drink_tier_5_team_training");
+
+				if (drinki5tier != null)
+				{
+					var result = SendSpecPostReq($"{FTPEndpoint}/character/drinks/{drinki5tier.Id}", new object());
+					if (result.Item2 == HttpStatusCode.OK)
+					{
+						dayTeamTrainingDrinkBooster = accState.ServerTimeDay();
+						return true;
+					}
+				}
+
+				if (drinki4tier != null)
+				{
+					var result = SendSpecPostReq($"{FTPEndpoint}/character/drinks/{drinki4tier.Id}", new object());
+					if (result.Item2 == HttpStatusCode.OK)
+					{
+						dayTeamTrainingDrinkBooster = accState.ServerTimeDay();
+						return true;
+					}
+				}
+				return false;
 			}
 			catch (Exception ex)
 			{

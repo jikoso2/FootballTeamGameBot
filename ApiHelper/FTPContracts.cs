@@ -527,5 +527,31 @@ namespace FootballteamBOT.ApiHelper
 				}
 			}
 		}
+
+		public class DrinksResponse
+		{
+			public DrinkItem[] Items { get; set; }
+
+			public class DrinkItem
+			{
+				public int Id { get; set; }
+				public int Tier { get; set; }
+				public int Amount { get; set; }
+				public string Drink { get; set; } = string.Empty;
+
+			}
+		}
+
+		public class TeamTrainingResponse
+		{
+			public int Signed_Members { get; set; }
+
+			public Dictionary<string, ActiveBonusesItem> Active_Bonuses { get; set; } = new Dictionary<string, ActiveBonusesItem>();
+
+			public class ActiveBonusesItem
+			{
+				public int value_display { get; set; }
+			}
+		}
 	}
 }

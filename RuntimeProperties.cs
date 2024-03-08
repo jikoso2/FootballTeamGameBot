@@ -29,11 +29,14 @@ namespace FootballteamBOT
         private string server = string.Empty;
         public string Server { get => server; set => SetField(ref server, value); }
 
-        #endregion
+		private int intervalRefresh;
+		public int IntervalRefresh { get => intervalRefresh; set => SetField(ref intervalRefresh, value); }
+
+		#endregion
 
 
-        #region Training
-        private int trainingLimit;
+		#region Training
+		private int trainingLimit;
         public int TrainingLimit { get => trainingLimit; set => SetField(ref trainingLimit, value); }
 
         private bool trainingCenterAfterLimit;
@@ -132,7 +135,13 @@ namespace FootballteamBOT
             private string trainingSkill = string.Empty;
             public string TrainingSkill { get => trainingSkill; set => SetField(ref trainingSkill, value); }
 
-            private bool euroAutoTransfer;
+			private bool trainingDrinkBooster;
+			public bool TrainingDrinkBooster { get => trainingDrinkBooster; set => SetField(ref trainingDrinkBooster, value); }
+
+			private int trainingDrinkBoosterMinFreq;
+			public int TrainingDrinkBoosterMinFreq { get => trainingDrinkBoosterMinFreq; set => SetField(ref trainingDrinkBoosterMinFreq, value); }
+
+			private bool euroAutoTransfer;
             public bool EuroAutoTransfer { get => euroAutoTransfer; set => SetField(ref euroAutoTransfer, value); }
 
             private bool matchBooster;

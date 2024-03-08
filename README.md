@@ -31,6 +31,7 @@ Prepare to using application:
 * Password - account password
 * FingerPrint - computer fingerprint
 * Server - you server: "pl","us" or "en"
+* RefreshInterval - refresh interval (default 45 sec - only 360 clicks per minute available)
 * TrainingLimit - trainings per day
 * Training
   * Skill - training skill
@@ -48,6 +49,9 @@ Prepare to using application:
 * BetMinCourse - course to bet
 * BetValue -bet $ (10kk - 10k)
 * ClubTraining - activate daily team training (true,false) - regardless of hour
+* ClubTrainingSkill - skill
+* TrainingDrinkBooster - Use team training drink
+* TrainingDrinkBoosterMinFreq - Minimal amount of signed members to team-training
 * ClubTrainingSkill - skill
 * ClubEuroAutoTransfer - auto transfer euros to building in team ( only team leaders)
 * ClubMatchBooster - auto match boosters (true,false)

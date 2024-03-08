@@ -4,6 +4,8 @@ using System.Globalization;
 using System.Text.Json;
 using System.Net.NetworkInformation;
 
+Logger.LogW("Jeśli spodobała Ci się aplikacja wspomóż twórce: https://buycoffee.to/jikoso2", "START-INFO");
+
 StartupProcedure();
 ReadRuntimeProperties(true);
 
@@ -49,6 +51,8 @@ while (true)
 	SomethingDoneInLoop = false;
 	ReadRuntimeProperties();
 	var accountState = FtpApi.GetAccountState();
+
+	var intervalRefreshAccState = RuntimeProps.IntervalRefresh != 0 ? RuntimeProps.IntervalRefresh * 1000 : 40000;
 
 	if (accountState.Overall == 0)
 	{
@@ -99,6 +103,9 @@ while (true)
 	if (RuntimeProps.Team.Training && accountState.ServerTimeHour() >= accountState.Team.TrainingHour && accountState.ServerTimeHour() < accountState.Team.TrainingHour + 1)
 		SomethingDoneInLoop |= FtpApi.TeamTraining(accountState, RuntimeProps.Team.TrainingSkill, RuntimeProps.Team.MessageNotification);
 
+	if (RuntimeProps.Team.TrainingDrinkBooster && accountState.ServerTimeHour() >= accountState.Team.TrainingHour && accountState.ServerTimeHour() < accountState.Team.TrainingHour + 1 && accountState.ServerTimeMinute() >= 35)
+		SomethingDoneInLoop |= FtpApi.TeamTrainingDrinkBooster(accountState, RuntimeProps.Team.TrainingDrinkBoosterMinFreq);
+
 	if (accountState.Team.NextMatch != null && RuntimeProps.Team.MatchBooster)
 		SomethingDoneInLoop |= FtpApi.MatchBooster(accountState.Team.NextMatch, RuntimeProps.Team, accountState.TeamId);
 
@@ -133,7 +140,9 @@ while (true)
 		SomethingDoneInLoop |= FtpApi.SelectCardToDuel(accountState.DuelsDeck, accountState.FightId);
 
 	if (!SomethingDoneInLoop)
-		Thread.Sleep(40000);
+		Thread.Sleep(intervalRefreshAccState);
+	else
+		Thread.Sleep(intervalRefreshAccState / 4);
 }
 
 void LogAccountState(AccountState accState)
@@ -335,6 +344,8 @@ public partial class Program
 			{
 				RuntimeProps.Server = runtimePropsFromConfig.Server;
 
+				RuntimeProps.IntervalRefresh = runtimePropsFromConfig.IntervalRefresh;
+
 				RuntimeProps.TrainingLimit = runtimePropsFromConfig.TrainingLimit;
 				RuntimeProps.TrainingCenterAfterLimit = runtimePropsFromConfig.TrainingCenterAfterLimit;
 				RuntimeProps.TrainingCenterAmount = runtimePropsFromConfig.TrainingCenterAmount;
@@ -355,6 +366,8 @@ public partial class Program
 
 				RuntimeProps.Team.Training = runtimePropsFromConfig.Team.Training;
 				RuntimeProps.Team.TrainingSkill = runtimePropsFromConfig.Team.TrainingSkill;
+				RuntimeProps.Team.TrainingDrinkBooster = runtimePropsFromConfig.Team.TrainingDrinkBooster;
+				RuntimeProps.Team.TrainingDrinkBoosterMinFreq = runtimePropsFromConfig.Team.TrainingDrinkBoosterMinFreq;
 				RuntimeProps.Team.EuroAutoTransfer = runtimePropsFromConfig.Team.EuroAutoTransfer;
 				RuntimeProps.Team.MatchBooster = runtimePropsFromConfig.Team.MatchBooster;
 				RuntimeProps.Team.BoosterSkill = runtimePropsFromConfig.Team.BoosterSkill;

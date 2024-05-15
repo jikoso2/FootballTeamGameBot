@@ -553,5 +553,66 @@ namespace FootballteamBOT.ApiHelper
 				public int value_display { get; set; }
 			}
 		}
+
+		public class UnfinishedTasksResponse
+		{
+			public Categorie Categories { get; set; }
+
+			public class Categorie
+			{
+				public Daily daily { get; set; }
+				public Weekly weekly { get; set; }
+				public Season season { get; set; }
+
+				[JsonPropertyName("one-time")]
+				public OneTime one_time { get; set; }
+
+				public class Daily
+				{
+					public int cards { get; set; }
+					public int city { get; set; }
+					public int duels { get; set; }
+					public int others { get; set; }
+					public int training { get; set; }
+				}
+
+				public class Weekly
+				{
+					public int locker_room { get; set; }
+					public int team { get; set; }
+					public int trader { get; set; }
+				}
+
+				public class Season
+				{
+					public int matches { get; set; }
+					public int others { get; set; }
+					public int training { get; set; }
+				}
+
+				public class OneTime
+				{
+					public int games { get; set; }
+					public int skills { get; set; }
+					public int team { get; set; }
+					public int others { get; set; }
+					public int training { get; set; }
+				}
+			}
+		}
+
+		public class TasksResponse
+		{
+			public List<Taskk> Tasks { get; set; }
+
+			public class Taskk
+			{
+				public bool can_finish { get; set; }
+				public string description { get; set; }
+				public string key { get; set; }
+				public int level { get; set; }
+				public int max_level { get; set; }
+			}
+		}
 	}
 }

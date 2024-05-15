@@ -62,6 +62,7 @@
 	"EatFood": true,
 	"TargetEuro": 4000000000,
 	"JobType": 7,
+	"AutoAchivementRewards": true,
 
 	"Cantinee": {
 		"Resolver": true,

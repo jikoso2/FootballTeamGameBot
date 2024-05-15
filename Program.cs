@@ -12,37 +12,38 @@ ReadRuntimeProperties(true);
 var FtpApi = new FTPApi(RuntimeProps.Server, Configuration);
 FtpApi.Login(RuntimeProps.Email, RuntimeProps.Password, RuntimeProps.FingerPrint);
 
+//FtpApi.CollectAchivementRewards();
 
 //FtpApi.GetSellViewCards();
 
-//for (int i = 0; i < 10; i++)
+//for (int i = 0; i < 6; i++)
 //{
-//	FtpApi.OpenPremiumPack("bronze", 5);
+//	FtpApi.OpenPremiumPack("bronze", 3);
 //	Thread.Sleep(1000);
 //}
 
 //for (int i = 0; i < 11; i++)
 //{
-//	int itemidd = xxx;
-//	FtpApi.Augment(itemidd, "legendary");
-//	//FtpApi.Augment(RuntimeProps.Cantinee.AugmentItemId, RuntimeProps.Cantinee.AugmentItemType);
+//	//int itemidd = 6435556;
+//	//FtpApi.Augment(itemidd, "legendary");
+//	FtpApi.Augment(RuntimeProps.Cantinee.AugmentItemId, RuntimeProps.Cantinee.AugmentItemType);
 
-//    Thread.Sleep(500);
+//	Thread.Sleep(500);
 
 //}
 
-//for (int i = 0; i < 30; i++)
+//for (int i = 0; i < 10; i++)
 //{
-//    int itemid = xxx;
-//    int enchantLevel = 15;
+//	int itemid = 7069889;
+//	int enchantLevel = 15;
 
-//    var itemInfo = FtpApi.GetItemInfo(itemid);
+//	var itemInfo = FtpApi.GetItemInfo(itemid);
 
-//    if (itemInfo.Level == enchantLevel + 1)
-//        break;
+//	if (itemInfo.Level == enchantLevel + 1)
+//		break;
 
-//    FtpApi.Enchanting(itemid, itemInfo);
-//    Thread.Sleep(1500);
+//	FtpApi.Enchanting(itemid, itemInfo);
+//	Thread.Sleep(1500);
 //}
 
 
@@ -138,6 +139,9 @@ while (true)
 
 	if (accountState.FightId != 0)
 		SomethingDoneInLoop |= FtpApi.SelectCardToDuel(accountState.DuelsDeck, accountState.FightId);
+
+	if (RuntimeProps.AutoAchivementRewards)
+		SomethingDoneInLoop |= FtpApi.CollectAchivementRewards();
 
 	if (!SomethingDoneInLoop)
 		Thread.Sleep(intervalRefreshAccState);
@@ -393,6 +397,7 @@ public partial class Program
 
 				RuntimeProps.TargetEuro = runtimePropsFromConfig.TargetEuro;
 				RuntimeProps.JobType = runtimePropsFromConfig.JobType;
+				RuntimeProps.AutoAchivementRewards = runtimePropsFromConfig.AutoAchivementRewards;
 
 				RuntimeProps.CleanMailBox = runtimePropsFromConfig.CleanMailBox;
 				RuntimeProps.AutoGetCardPack = runtimePropsFromConfig.AutoGetCardPack;

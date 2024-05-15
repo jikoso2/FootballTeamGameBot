@@ -109,11 +109,14 @@ namespace FootballteamBOT
 
         private int jobType;
         public int JobType { get => jobType; set => SetField(ref jobType, value); }
-        #endregion
+
+		private bool autoAchivementRewards;
+		public bool AutoAchivementRewards { get => autoAchivementRewards; set => SetField(ref autoAchivementRewards, value); }
+		#endregion
 
 
-        #region Cantinee
-        public CantineeProperties Cantinee { get; set; }
+		#region Cantinee
+		public CantineeProperties Cantinee { get; set; }
         #endregion
 
         public class TeamProperties

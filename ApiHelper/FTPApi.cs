@@ -11,6 +11,7 @@ using static FootballteamBOT.ApiHelper.FTPContracts;
 using static FootballteamBOT.ApiHelper.FTPContracts.ItemsResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.MatchesResponse;
 using static FootballteamBOT.ApiHelper.FTPContracts.TeamResponse;
+using static FootballteamBOT.ApiHelper.FTPContracts.TasksResponse;
 
 namespace FootballteamBOT.ApiHelper
 {
@@ -259,7 +260,7 @@ namespace FootballteamBOT.ApiHelper
 					}
 					catch (Exception) { }
 
-					if (accountState.TeamId != 0)
+					if (accountState.TeamId != 0 && FTPServer != "s1")
 					{
 						var teamStatsResponse = SendGetReq($"{FTPEndpoint}/teams/{accountState.TeamId}");
 						var teamStatsGetResponse = DeserializeJson<TeamResponse>(teamStatsResponse);
@@ -1503,7 +1504,139 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
+		public bool CollectAchivementRewards()
+		{
+			var opName = "COLLECT-ACHIVEMENT-REWARDS";
+			var result = false;
+			try
+			{
+				var unfinishedTasksResponse = SendGetReq($"{FTPEndpoint}/tasks/unfinished");
+				var unfinishedTasksGetResponse = DeserializeJson<UnfinishedTasksResponse>(unfinishedTasksResponse);
+
+				if (
+					unfinishedTasksGetResponse.Categories.daily.training > 0 ||
+					unfinishedTasksGetResponse.Categories.daily.others > 0 ||
+					unfinishedTasksGetResponse.Categories.daily.city > 0 ||
+					unfinishedTasksGetResponse.Categories.daily.cards > 0 ||
+					unfinishedTasksGetResponse.Categories.daily.duels > 0
+					)
+				{
+					var tasksToFinish = GetTasksToFinish("daily");
+
+					foreach (var task in tasksToFinish)
+					{
+						Logger.LogD($"Finishing task: {task.description}, level: {task.level}/{task.max_level}", opName);
+						var taskResult = SendSpecPostReq($"{FTPEndpoint}/tasks/daily", new { task = task.key });
+						Logger.LogD($"{NodeParse(taskResult)}", opName);
+					}
+					result = true;
+				}
+				if (
+					unfinishedTasksGetResponse.Categories.weekly.team > 0 ||
+					unfinishedTasksGetResponse.Categories.weekly.locker_room > 0 ||
+					unfinishedTasksGetResponse.Categories.weekly.trader > 0
+					)
+				{
+					var tasksToFinish = GetTasksToFinish("weekly");
+
+					foreach (var task in tasksToFinish)
+					{
+						Logger.LogD($"Finishing task: {task.description}, level: {task.level}/{task.max_level}", opName);
+						var taskResult = SendSpecPostReq($"{FTPEndpoint}/tasks/weekly", new { task = task.key });
+						Logger.LogD($"{NodeParse(taskResult)}", opName);
+					}
+					result = true;
+				}
+				if (
+					unfinishedTasksGetResponse.Categories.season.training > 0 ||
+					unfinishedTasksGetResponse.Categories.season.others > 0 ||
+					unfinishedTasksGetResponse.Categories.season.matches > 0
+					)
+				{
+					var tasksToFinish = GetTasksToFinish("season");
+
+					foreach (var task in tasksToFinish)
+					{
+						Logger.LogD($"Finishing task: {task.description}, level: {task.level}/{task.max_level}", opName);
+						var taskResult = SendSpecPostReq($"{FTPEndpoint}/tasks/season", new { task = task.key });
+						Logger.LogD($"{NodeParse(taskResult)}", opName);
+					}
+					result = true;
+				}
+				//if (
+				//	unfinishedTasksGetResponse.Categories.one_time.training > 0 ||
+				//	unfinishedTasksGetResponse.Categories.one_time.others > 0 ||
+				//	unfinishedTasksGetResponse.Categories.one_time.games > 0 ||
+				//	unfinishedTasksGetResponse.Categories.one_time.skills > 0 ||
+				//	unfinishedTasksGetResponse.Categories.one_time.team > 0
+				//	)
+				//{
+				//	var tasksToFinish = GetTasksToFinish("one-time");
+
+				//	foreach (var task in tasksToFinish)
+				//	{
+				//		Logger.LogD($"Finishing task: {task.description}, level: {task.level}/{task.max_level}", opName);
+				//		var taskResult = SendSpecPostReq($"{FTPEndpoint}/tasks/one-time", new { task = task.key });
+				//		Logger.LogD($"{NodeParse(taskResult)}", opName);
+				//	}
+				//	result = true;
+				//}
+				return result;
+			}
+			catch (Exception ex)
+			{
+				Logger.LogE(ex.ToString(), opName);
+				return false;
+			}
+		}
+
+		public List<Taskk> GetTasksToFinish(string type)
+		{
+			var result = new List<Taskk>();
+
+			switch (type)
+			{
+				case "daily":
+					result.AddRange(GetTaskToFinishInner($"{type}/training"));
+					result.AddRange(GetTaskToFinishInner($"{type}/city"));
+					result.AddRange(GetTaskToFinishInner($"{type}/others"));
+					result.AddRange(GetTaskToFinishInner($"{type}/cards"));
+					result.AddRange(GetTaskToFinishInner($"{type}/duels"));
+					break;
+				case "weekly":
+					result.AddRange(GetTaskToFinishInner($"{type}/team"));
+					result.AddRange(GetTaskToFinishInner($"{type}/locker_room"));
+					result.AddRange(GetTaskToFinishInner($"{type}/trader"));
+					break;
+				case "season":
+					result.AddRange(GetTaskToFinishInner($"{type}/training"));
+					result.AddRange(GetTaskToFinishInner($"{type}/matches"));
+					result.AddRange(GetTaskToFinishInner($"{type}/others"));
+					break;
+				case "one-time":
+					//result.AddRange(GetTaskToFinishInner($"?type=training"));
+					//result.AddRange(GetTaskToFinishInner($"?type=games"));
+					//result.AddRange(GetTaskToFinishInner($"?type=others"));
+					//result.AddRange(GetTaskToFinishInner($"?type=skills"));
+					//result.AddRange(GetTaskToFinishInner($"?type=team"));
+					break;
+				default:
+					break;
+			}
+
+			return result;
+		}
+
+		public List<Taskk> GetTaskToFinishInner(string type)
+		{
+			var response = SendGetReq($"{FTPEndpoint}/tasks/{type}");
+			var responseGetTasks = DeserializeJson<TasksResponse>(response);
+			return responseGetTasks.Tasks.Where(a => a.can_finish).ToList();
+
+		}
+
 		[RegularExp.GeneratedRegex("\\d+")]
 		private static partial RegularExp.Regex MessageRegex();
+
 	}
 }

@@ -123,10 +123,10 @@ while (true)
 	if (RuntimeProps.TargetEuro > accountState.Euro && RuntimeProps.JobType >= 1 && RuntimeProps.JobType <= 9 && accountState.Job.Queue == null)
 		SomethingDoneInLoop |= FtpApi.StartJob(RuntimeProps.JobType);
 
-	if ((accountState.ServerTimeHour() >= 17 && accountState.ServerTimeHour() < 23) && accountState.FightId == 0 && accountState.RankedDuels < RuntimeProps.RankedDuels)
+	if ((DateTime.UtcNow.Hour >= 17 && DateTime.UtcNow.Hour < 23) && accountState.FightId == 0 && accountState.RankedDuels < RuntimeProps.RankedDuels)
 		SomethingDoneInLoop |= FtpApi.AssignToCardDuel(accountState.DuelsDeck);
 
-	if (accountState.ServerTimeHour() < 18 && accountState.FightId == 0 && accountState.QuickDuels < RuntimeProps.QuickDuels)
+	if (DateTime.UtcNow.Hour < 17 && accountState.FightId == 0 && accountState.QuickDuels < RuntimeProps.QuickDuels)
 		SomethingDoneInLoop |= FtpApi.AssignToCardDuel(accountState.DuelsDeck);
 
 	if (accountState.FightId != 0)

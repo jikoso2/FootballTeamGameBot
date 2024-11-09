@@ -76,13 +76,13 @@ namespace FootballteamBOT.ApiHelper
 
 		public enum TrainingType
 		{
+			playmaking,
 			condition,
 			defensive,
 			pressing,
 			efficacy,
 			freekicks,
 			offensive,
-			playmaking,
 			reading
 		}
 
@@ -316,7 +316,7 @@ namespace FootballteamBOT.ApiHelper
 		{
 			public TeamEntity Team { get; set; } = new();
 
-			public Dictionary<string, TeamMatch[]> Timetable { get; set; } = new Dictionary<string, TeamMatch[]>();
+			public Dictionary<string, TeamMatch[]?>? Timetable { get; set; }
 
 			public CompositionModel Composition { get; set; } = new();
 
@@ -350,6 +350,34 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
+		public class TeamResponse2
+		{
+			public TeamEntity Team { get; set; } = new();
+
+			public string[]? Timetable { get; set; }
+
+			public CompositionModel Composition { get; set; } = new();
+
+			public class TeamEntity
+			{
+				public long Euro { get; set; }
+				public long Euro_building { get; set; }
+				public string Name { get; set; } = string.Empty;
+				public int Ovr { get; set; }
+				public int Training_hour { get; set; }
+
+			}
+
+			public class CompositionModel
+			{
+				public PlayerCompositionModel[] Players { get; set; } = Array.Empty<PlayerCompositionModel>();
+			}
+
+			public class PlayerCompositionModel
+			{
+				public long Id { get; set; }
+			}
+		}
 		public class StarterFreeResponse
 		{
 			public PrizeEntity Prize { get; set; } = new();

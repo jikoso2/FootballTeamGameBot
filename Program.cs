@@ -98,7 +98,7 @@ while (true)
 			if (RuntimeProps.Training.UseBot)
 			SomethingDoneInLoop |= FtpApi.NormalBotTraining(accountState.Energy);
 		else
-			SomethingDoneInLoop |= FtpApi.NormalTraining(60);
+			SomethingDoneInLoop |= FtpApi.NormalTraining(600);
 	}
 
 	if (RuntimeProps.Team.Training && accountState.ServerTimeHour() >= accountState.Team.TrainingHour && accountState.ServerTimeHour() < accountState.Team.TrainingHour + 1)
@@ -131,7 +131,7 @@ while (true)
 	if (RuntimeProps.Team.GenerateRaportFile)
 		SomethingDoneInLoop |= FtpApi.GenerateTeamStats(accountState);
 
-	if ((accountState.ServerTimeHour() >= 18 && accountState.ServerTimeHour() < 23) && accountState.FightId == 0 && accountState.RankedDuels < RuntimeProps.RankedDuels)
+	if ((accountState.ServerTimeHour() >= 17 && accountState.ServerTimeHour() < 23) && accountState.FightId == 0 && accountState.RankedDuels < RuntimeProps.RankedDuels)
 		SomethingDoneInLoop |= FtpApi.AssignToCardDuel(accountState.DuelsDeck);
 
 	if (accountState.ServerTimeHour() < 18 && accountState.FightId == 0 && accountState.QuickDuels < RuntimeProps.QuickDuels)
@@ -266,21 +266,7 @@ void FoodResolver(AccountState accState)
 {
 	var mealLeft = accState.Canteen.Limit - accState.Canteen.Used;
 
-	switch (mealLeft)
-	{
-		case 0:
-			return;
-		case 1:
-			if (accState.ServerTimeHour() >= 18 || accState.Canteen.Used == 29)
-				SomethingDoneInLoop |= FtpApi.EatMeal(6);
-			break;
-		case 2:
-			if (accState.ServerTimeHour() >= 16 || accState.Canteen.Used == 28)
-				SomethingDoneInLoop |= FtpApi.EatMeal(4);
-			break;
-		case int n when (n < 0):
-			break;
-		default:
+	if (mealLeft > 2)
 			SomethingDoneInLoop |= FtpApi.EatMeal(1);
 			break;
 	}

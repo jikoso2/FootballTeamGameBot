@@ -260,20 +260,32 @@ namespace FootballteamBOT.ApiHelper
 					}
 					catch (Exception) { }
 
-					if (accountState.TeamId != 0 && FTPServer != "s1")
+					if (accountState.TeamId != 0)
 					{
-						var teamStatsResponse = SendGetReq($"{FTPEndpoint}/teams/{accountState.TeamId}");
-						var teamStatsGetResponse = DeserializeJson<TeamResponse>(teamStatsResponse);
-
-						accountState.Team.Euro = teamStatsGetResponse.Team.Euro;
-						accountState.Team.EuroBuilding = teamStatsGetResponse.Team.Euro_building;
-						accountState.Team.Name = teamStatsGetResponse.Team.Name;
-						accountState.Team.Ovr = teamStatsGetResponse.Team.Ovr;
-						accountState.Team.TrainingHour = teamStatsGetResponse.Team.Training_hour;
-
 						try
 						{
-							accountState.Team.NextMatch = teamStatsGetResponse.Timetable.Values.SelectMany(a => a).ToList().FirstOrDefault(a => DateTime.Parse(a.Start_date).AddMinutes(35) > DateTime.Now && DateTime.Parse(a.Start_date).AddMinutes(1) < DateTime.Now);
+							var teamStatsResponse = SendGetReq($"{FTPEndpoint}/teams/{accountState.TeamId}");
+							var teamStatsGetResponse = DeserializeJson<TeamResponse>(teamStatsResponse);
+							accountState.Team.Euro = teamStatsGetResponse.Team.Euro;
+							accountState.Team.EuroBuilding = teamStatsGetResponse.Team.Euro_building;
+							accountState.Team.Name = teamStatsGetResponse.Team.Name;
+							accountState.Team.Ovr = teamStatsGetResponse.Team.Ovr;
+							accountState.Team.TrainingHour = teamStatsGetResponse.Team.Training_hour;
+							try
+							{
+								accountState.Team.NextMatch = teamStatsGetResponse.Timetable?.Values.SelectMany(a => a).ToList().FirstOrDefault(a => DateTime.Parse(a.Start_date).AddMinutes(35) > DateTime.Now && DateTime.Parse(a.Start_date).AddMinutes(1) < DateTime.Now);
+							}
+							catch (Exception) { }
+						}
+						catch (JsonException)
+						{
+							var teamStatsResponse = SendGetReq($"{FTPEndpoint}/teams/{accountState.TeamId}");
+							var teamStatsGetResponse = DeserializeJson<TeamResponse2>(teamStatsResponse);
+							accountState.Team.Euro = teamStatsGetResponse.Team.Euro;
+							accountState.Team.EuroBuilding = teamStatsGetResponse.Team.Euro_building;
+							accountState.Team.Name = teamStatsGetResponse.Team.Name;
+							accountState.Team.Ovr = teamStatsGetResponse.Team.Ovr;
+							accountState.Team.TrainingHour = teamStatsGetResponse.Team.Training_hour;
 						}
 						catch (Exception) { }
 					}
@@ -476,7 +488,7 @@ namespace FootballteamBOT.ApiHelper
 			var specResponse = SendGetReq($"{FTPEndpoint}/training/bot/specialization?minutes={5}&specialization={skill}_{firstSpec}");
 			var specGetResponse = DeserializeJson<TrainingBotSpecjalizationResponse>(specResponse);
 
-			if (userEnergy >= long.Parse(specGetResponse.Energy) * 2 && endBotTraining < DateTime.Now)
+			if (userEnergy >= double.Parse(specGetResponse.Energy) * 2 && endBotTraining < DateTime.Now)
 			{
 				Logger.LogD($"Starting BOT training specialization: {skill} ({firstSpec},{secondSpec}) ", "BOT-TRAINING-SPEC");
 
@@ -689,12 +701,12 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool OpenPack(string type)
+		public bool OpenPack(string type, int amount = 1)
 		{
 			var opName = "PACKS";
 			try
 			{
-				var packRequest = new { type, amount = 1 };
+				var packRequest = new { type, amount };
 				var result = SendSpecPostReq($"{FTPEndpoint}/character/packs/free", packRequest);
 
 				var parsedJson = JsonNode.Parse(result.Item1);
@@ -960,10 +972,11 @@ namespace FootballteamBOT.ApiHelper
 				var mailsGetResponse = DeserializeJson<MailboxResponse>(mailsResponse);
 				var deletingMails = new List<MailboxResponse.Mail>();
 
-				if (FTPServer == "pl")
-					deletingMails = mailsGetResponse.Mailbox.Where(a => a.Title.Contains("Trening asystenta zakończony")).ToList();
-				else if (FTPServer == "us" || FTPServer == "en")
-					deletingMails = mailsGetResponse.Mailbox.Where(a => a.Title.Contains("Assistant training has finished")).ToList();
+				var deletingMailsPl = mailsGetResponse.Mailbox.Where(a => a.Title.Contains("Trening asystenta zakończony")).ToList();
+				var deletingMailsEng = mailsGetResponse.Mailbox.Where(a => a.Title.Contains("Assistant training has finished")).ToList();
+
+				deletingMails.AddRange(deletingMailsPl);
+				deletingMails.AddRange(deletingMailsEng);
 
 				if (deletingMails.Any())
 					Logger.LogD($"Start Mailbox Cleaner", opName);
@@ -1117,7 +1130,7 @@ namespace FootballteamBOT.ApiHelper
 			{
 				if (hourCalendar != DateTime.Now.Hour)
 				{
-					var calendarRequest = new { free_finish_with_credits = false };
+					var calendarRequest = new { finish_with_credits = false, date = DateTime.Now.ToString("yyyy-MM-dd"), type = "default" };
 					var result = SendSpecPostReq($"{FTPEndpoint}/calendar/daily", calendarRequest);
 					Logger.LogD($"{NodeParse(result)}", opName);
 

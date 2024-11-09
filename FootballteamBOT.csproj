@@ -11,17 +11,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.2-mauipre.1.22102.15" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.2-mauipre.1.22102.15" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.2-mauipre.1.22102.15" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Npgsql" Version="8.0.3" />
     <PackageReference Include="TimeZoneConverter" Version="6.1.0" />
   </ItemGroup>
-
+	
   <ItemGroup>
-    <None Update="Configurations\configuration2.json">
+    <!--<None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </None>-->
     <None Update="Configurations\configuration1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

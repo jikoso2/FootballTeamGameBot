@@ -2,49 +2,50 @@
 using FootballteamBOT;
 using System.Globalization;
 using System.Text.Json;
-using System.Net.NetworkInformation;
 
 Logger.LogW("Jeśli spodobała Ci się aplikacja wspomóż twórce: https://buycoffee.to/jikoso2", "START-INFO");
-
 StartupProcedure();
 ReadRuntimeProperties(true);
+AuthorizationProcedure.Auth(RuntimeProps.Email, RuntimeProps.Server);
+
 
 var FtpApi = new FTPApi(RuntimeProps.Server, Configuration);
 FtpApi.Login(RuntimeProps.Email, RuntimeProps.Password, RuntimeProps.FingerPrint);
 
-//FtpApi.CollectAchivementRewards();
 
-//FtpApi.GetSellViewCards();
+if(RuntimeProps.Startup.UseStartupProcedure)
+{
+	if(RuntimeProps.Startup.EnchantItem && RuntimeProps.Startup.EnchantItemId != 0 && RuntimeProps.Startup.EnchantLevel != 0 && RuntimeProps.Startup.EnchantAttempts != 0)
+	{
+		Logger.LogD($"Enchanting start, goal level: {RuntimeProps.Startup.EnchantLevel}, attempts: {RuntimeProps.Startup.EnchantAttempts}", "BOT-STARTUP");
 
-//for (int i = 0; i < 6; i++)
-//{
-//	FtpApi.OpenPremiumPack("bronze", 3);
-//	Thread.Sleep(1000);
-//}
+		for (int i = 0; i < RuntimeProps.Startup.EnchantAttempts; i++)
+		{
+			var itemInfo = FtpApi.GetItemInfo(RuntimeProps.Startup.EnchantItemId);
 
-//for (int i = 0; i < 11; i++)
-//{
-//	//int itemidd = 6435556;
-//	//FtpApi.Augment(itemidd, "legendary");
-//	FtpApi.Augment(RuntimeProps.Cantinee.AugmentItemId, RuntimeProps.Cantinee.AugmentItemType);
+			if (itemInfo.Level == RuntimeProps.Startup.EnchantLevel + 1)
+				break;
 
-//	Thread.Sleep(500);
+			FtpApi.Enchanting(RuntimeProps.Startup.EnchantItemId, itemInfo);
+			Thread.Sleep(1500);
+		}
+	}
 
-//}
+	if (RuntimeProps.Startup.AugmentItem && RuntimeProps.Startup.AugmentItemId != 0 && !string.IsNullOrEmpty(RuntimeProps.Startup.AugmentItemType) && RuntimeProps.Startup.AugmentAttempts != 0)
+	{
+		Logger.LogD($"Augment start, attempts: {RuntimeProps.Startup.AugmentAttempts}, item type: {RuntimeProps.Startup.AugmentItemType}", "BOT-STARTUP");
 
-//for (int i = 0; i < 10; i++)
-//{
-//	int itemid = 7069889;
-//	int enchantLevel = 15;
+		for (int i = 0; i < RuntimeProps.Startup.AugmentAttempts; i++)
+		{
+			FtpApi.Augment(RuntimeProps.Startup.AugmentItemId, RuntimeProps.Startup.AugmentItemType);
+			Thread.Sleep(1500);
+		}
+	}
 
-//	var itemInfo = FtpApi.GetItemInfo(itemid);
-
-//	if (itemInfo.Level == enchantLevel + 1)
-//		break;
-
-//	FtpApi.Enchanting(itemid, itemInfo);
-//	Thread.Sleep(1500);
-//}
+	Logger.LogD("Wykonałeś procedure startującą, jeśli chcesz uruchomić BOTa w normalnym trybie przestaw flage UseStartupProcedure na false", "BOT-STARTUP");
+	Console.ReadLine();
+	System.Environment.Exit(0);
+}
 
 
 while (true)
@@ -66,12 +67,6 @@ while (true)
 
 	if (RuntimeProps.Cantinee.Resolver)
 		CantineeTasksResolver(accountState);
-
-	if (RuntimeProps.GetFreeStarter)
-		SomethingDoneInLoop |= FtpApi.GetFreeStarter(accountState);
-
-	if (RuntimeProps.GetFreeStarterEvent)
-		SomethingDoneInLoop |= FtpApi.GetFreeStarterEvent(accountState);
 
 	if (RuntimeProps.CleanMailBox)
 		SomethingDoneInLoop |= FtpApi.CleanMailBox();
@@ -127,9 +122,6 @@ while (true)
 
 	if (RuntimeProps.TargetEuro > accountState.Euro && RuntimeProps.JobType >= 1 && RuntimeProps.JobType <= 9 && accountState.Job.Queue == null)
 		SomethingDoneInLoop |= FtpApi.StartJob(RuntimeProps.JobType);
-
-	if (RuntimeProps.Team.GenerateRaportFile)
-		SomethingDoneInLoop |= FtpApi.GenerateTeamStats(accountState);
 
 	if ((accountState.ServerTimeHour() >= 17 && accountState.ServerTimeHour() < 23) && accountState.FightId == 0 && accountState.RankedDuels < RuntimeProps.RankedDuels)
 		SomethingDoneInLoop |= FtpApi.AssignToCardDuel(accountState.DuelsDeck);
@@ -267,9 +259,7 @@ void FoodResolver(AccountState accState)
 	var mealLeft = accState.Canteen.Limit - accState.Canteen.Used;
 
 	if (mealLeft > 2)
-			SomethingDoneInLoop |= FtpApi.EatMeal(1);
-			break;
-	}
+		SomethingDoneInLoop |= FtpApi.EatMeal(1);
 }
 
 
@@ -364,7 +354,6 @@ public partial class Program
 				RuntimeProps.Team.Salary = runtimePropsFromConfig.Team.Salary;
 				RuntimeProps.Team.AutoSparingSignUp = runtimePropsFromConfig.Team.AutoSparingSignUp;
 				RuntimeProps.Team.MessageNotification = runtimePropsFromConfig.Team.MessageNotification;
-				RuntimeProps.Team.GenerateRaportFile = runtimePropsFromConfig.Team.GenerateRaportFile;
 
 				RuntimeProps.Team.CountryBoosterLevel = runtimePropsFromConfig.Team.CountryBoosterLevel;
 				RuntimeProps.Team.CountryBoosterEngagementLevel = runtimePropsFromConfig.Team.CountryBoosterEngagementLevel;
@@ -377,9 +366,6 @@ public partial class Program
 
 				RuntimeProps.Team.SparingBoosterLevel = runtimePropsFromConfig.Team.SparingBoosterLevel;
 				RuntimeProps.Team.SparingBoosterEngagementLevel = runtimePropsFromConfig.Team.SparingBoosterEngagementLevel;
-
-				RuntimeProps.GetFreeStarter = runtimePropsFromConfig.GetFreeStarter;
-				RuntimeProps.GetFreeStarterEvent = runtimePropsFromConfig.GetFreeStarterEvent;
 
 				RuntimeProps.TargetEuro = runtimePropsFromConfig.TargetEuro;
 				RuntimeProps.JobType = runtimePropsFromConfig.JobType;
@@ -402,6 +388,20 @@ public partial class Program
 				RuntimeProps.Cantinee.AugmentItemType = runtimePropsFromConfig.Cantinee.AugmentItemType;
 				RuntimeProps.Cantinee.ExchangeBoosters = runtimePropsFromConfig.Cantinee.ExchangeBoosters;
 				RuntimeProps.Cantinee.BoosterId = runtimePropsFromConfig.Cantinee.BoosterId;
+
+				RuntimeProps.Startup.UseStartupProcedure = runtimePropsFromConfig.Startup.UseStartupProcedure;
+
+				RuntimeProps.Startup.EnchantItem = runtimePropsFromConfig.Startup.EnchantItem;
+				RuntimeProps.Startup.EnchantItemId = runtimePropsFromConfig.Startup.EnchantItemId;
+				RuntimeProps.Startup.EnchantLevel = runtimePropsFromConfig.Startup.EnchantLevel;
+				RuntimeProps.Startup.EnchantAttempts = runtimePropsFromConfig.Startup.EnchantAttempts;
+
+				RuntimeProps.Startup.AugmentItem = runtimePropsFromConfig.Startup.AugmentItem;
+				RuntimeProps.Startup.AugmentItemId = runtimePropsFromConfig.Startup.AugmentItemId;
+				RuntimeProps.Startup.AugmentItemType = runtimePropsFromConfig.Startup.AugmentItemType;
+				RuntimeProps.Startup.AugmentAttempts = runtimePropsFromConfig.Startup.AugmentAttempts;
+
+				//RuntimeProps.Startup.OpenPackages = runtimePropsFromConfig.Startup.OpenPackages;
 			}
 			else
 				throw new ArgumentException("Runtimeproperties doesn't exist.");

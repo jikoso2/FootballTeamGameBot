@@ -902,66 +902,6 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool GetFreeStarter(AccountState accState)
-		{
-			var opName = "FREE-PACK";
-			try
-			{
-				if (dayFreeStarter != accState.ServerTimeDay())
-				{
-					var result = SendSpecPostReq($"{FTPEndpoint}/shop/starters-free", new object());
-					dayFreeStarter = accState.ServerTimeDay();
-
-					if (result.Item2 == HttpStatusCode.OK)
-					{
-						var prize = DeserializeJson<StarterFreeResponse>(result.Item1);
-						Logger.LogD($"You get free starter daily: {prize.Prize.Item.Display}", opName);
-						return true;
-					}
-					else
-					{
-						Logger.LogD($"{NodeParse(result)}", opName);
-					}
-				}
-				return false;
-			}
-			catch (Exception ex)
-			{
-				Logger.LogE(ex.Message, opName);
-				return false;
-			}
-		}
-
-		public bool GetFreeStarterEvent(AccountState accState)
-		{
-			var opName = "FREE-EVENT-PACK";
-			try
-			{
-				if (dayFreeStarterEvent != accState.ServerTimeDay())
-				{
-					var result = SendSpecPostReq($"{FTPEndpoint}/shop/event-packs", new object());
-					dayFreeStarterEvent = accState.ServerTimeDay();
-
-					if (result.Item2 == HttpStatusCode.OK)
-					{
-						var prize = DeserializeJson<StarterFreeResponse>(result.Item1);
-						Logger.LogD($"You get free starter daily: {prize.Prize.Item.Display}", opName);
-						return true;
-					}
-					else
-					{
-						Logger.LogD($"{NodeParse(result)}", opName);
-					}
-				}
-				return false;
-			}
-			catch (Exception ex)
-			{
-				Logger.LogE(ex.Message, opName);
-				return false;
-			}
-		}
-
 		public bool CleanMailBox()
 		{
 			var result = false;
@@ -1389,80 +1329,7 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool GenerateTeamStats(AccountState accState)
-		{
-			var opName = "GENERATE-FILE-STATS";
-			try
-			{
-				if (dayTeamRaport != accState.ServerTimeDay())
-				{
-					dayTeamRaport = accState.ServerTimeDay();
-
-					var teamStats = SendGetReq($"{FTPEndpoint}/teams/{accState.TeamId}");
-					var teamStatsGetResponse = DeserializeJson<TeamResponse>(teamStats);
-					string toFile = string.Empty;
-					toFile += "Id,Name,Ranking,AverageTraining,AverageCard," +
-						"Reading_All,Pressing_All,Playmaking_All,Defensive_All,Condition_All,Efficacy_All,FreeKicks_All,Offensive_All," +
-						"Reading_Training,Pressing_Training,Playmaking_Training,Defensive_Training,Condition_Training,Efficacy_Training,FreeKicks_Training,Offensive_Training," +
-						"Reading_Card,Pressing_Card,Playmaking_Card,Defensive_Card,Condition_Card,Efficacy_Card,FreeKicks_Card,Offensive_Card" +
-						"\n";
-
-					foreach (var id in teamStatsGetResponse.Composition.Players.Select(a => a.Id))
-					{
-						var user = SendGetReq($"{FTPEndpoint}/profile/{id}");
-						var userGetResponse = DeserializeJson<ProfileResponse>(user);
-
-						var stat = string.Join(",",
-							userGetResponse.User.Id,
-							userGetResponse.User.Name,
-							userGetResponse.User.Ranking_Position,
-							userGetResponse.User.Skills.AverageTraining,
-							userGetResponse.User.Skills.AverageCards,
-							userGetResponse.User.Skills.All.Reading,
-							userGetResponse.User.Skills.All.Pressing,
-							userGetResponse.User.Skills.All.Playmaking,
-							userGetResponse.User.Skills.All.Defensive,
-							userGetResponse.User.Skills.All.Condition,
-							userGetResponse.User.Skills.All.Efficacy,
-							userGetResponse.User.Skills.All.Freekicks,
-							userGetResponse.User.Skills.All.Offensive,
-							userGetResponse.User.Skills.Training.Reading,
-							userGetResponse.User.Skills.Training.Pressing,
-							userGetResponse.User.Skills.Training.Playmaking,
-							userGetResponse.User.Skills.Training.Defensive,
-							userGetResponse.User.Skills.Training.Condition,
-							userGetResponse.User.Skills.Training.Efficacy,
-							userGetResponse.User.Skills.Training.Freekicks,
-							userGetResponse.User.Skills.Training.Offensive,
-							userGetResponse.User.Skills.Cards.Reading,
-							userGetResponse.User.Skills.Cards.Pressing,
-							userGetResponse.User.Skills.Cards.Playmaking,
-							userGetResponse.User.Skills.Cards.Defensive,
-							userGetResponse.User.Skills.Cards.Condition,
-							userGetResponse.User.Skills.Cards.Efficacy,
-							userGetResponse.User.Skills.Cards.Freekicks,
-							userGetResponse.User.Skills.Cards.Offensive
-							);
-						toFile += stat + "\n";
-					}
-					var fileDirectory = Directory.GetCurrentDirectory() + $"\\Configurations\\Stats\\{DateTime.Now.ToString("d-M-yyyy-H-m")}.txt";
-
-					File.WriteAllText(fileDirectory, toFile);
-
-					Logger.LogD($"Create Raport File: {fileDirectory}", opName);
-
-					return true;
-				}
-				return false;
-			}
-			catch (Exception ex)
-			{
-				Logger.LogE(ex.Message, opName);
-				return false;
-			}
-		}
-
-		public void GetSellViewCards()
+		public void SellAllDuplicateCards()
 		{
 			var opName = "SELL-CARDS";
 			try
@@ -1576,24 +1443,6 @@ namespace FootballteamBOT.ApiHelper
 					}
 					result = true;
 				}
-				//if (
-				//	unfinishedTasksGetResponse.Categories.one_time.training > 0 ||
-				//	unfinishedTasksGetResponse.Categories.one_time.others > 0 ||
-				//	unfinishedTasksGetResponse.Categories.one_time.games > 0 ||
-				//	unfinishedTasksGetResponse.Categories.one_time.skills > 0 ||
-				//	unfinishedTasksGetResponse.Categories.one_time.team > 0
-				//	)
-				//{
-				//	var tasksToFinish = GetTasksToFinish("one-time");
-
-				//	foreach (var task in tasksToFinish)
-				//	{
-				//		Logger.LogD($"Finishing task: {task.description}, level: {task.level}/{task.max_level}", opName);
-				//		var taskResult = SendSpecPostReq($"{FTPEndpoint}/tasks/one-time", new { task = task.key });
-				//		Logger.LogD($"{NodeParse(taskResult)}", opName);
-				//	}
-				//	result = true;
-				//}
 				return result;
 			}
 			catch (Exception ex)
@@ -1627,11 +1476,6 @@ namespace FootballteamBOT.ApiHelper
 					result.AddRange(GetTaskToFinishInner($"{type}/others"));
 					break;
 				case "one-time":
-					//result.AddRange(GetTaskToFinishInner($"?type=training"));
-					//result.AddRange(GetTaskToFinishInner($"?type=games"));
-					//result.AddRange(GetTaskToFinishInner($"?type=others"));
-					//result.AddRange(GetTaskToFinishInner($"?type=skills"));
-					//result.AddRange(GetTaskToFinishInner($"?type=team"));
 					break;
 				default:
 					break;

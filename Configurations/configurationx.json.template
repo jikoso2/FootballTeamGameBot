@@ -2,10 +2,10 @@
 	"Email": "",
 	"Password": "",
 	"FingerPrint": "",
-	"Server": "pl",
+	"Server": "classic",
 	"IntervalRefresh": 45,
 
-	"TrainingLimit": 3050,
+	"TrainingLimit": 0,
 	"Training": {
 		"Skill": "defensive",
 		"Specialize": true,
@@ -15,11 +15,11 @@
 		"UseBot": true
 	},
 
-	"TrainingCenterAfterLimit": true,
+	"TrainingCenterAfterLimit": false,
 	"TrainingCenterAmount": 500,
 	"TrainingCenterSkill": "condition_first",
 
-	"QuickDuels": 3,
+	"QuickDuels": 10,
 	"RankedDuels": 10,
 
 	"BetManager": true,
@@ -28,22 +28,21 @@
 
 	"Team": {
 		"Training": true,
-		"TrainingSkill": "playmaking",
+		"TrainingSkill": "playmaking_first",
 		"TrainingDrinkBooster": true,
 		"TrainingDrinkBoosterMinFreq": 15,
 
 		"EuroAutoTransfer": false,
 		"Salary": true,
 		"MessageNotification": false,
-		"GenerateRaportFile": false,
 
 		"MatchBooster": true,
 		"BoosterSkill": "defensive",
 
-		"CountryBoosterLevel": 5,
+		"CountryBoosterLevel": 1,
 		"CountryBoosterEngagementLevel": 1,
 
-		"LeagueBoosterLevel": 5,
+		"LeagueBoosterLevel": 1,
 		"LeagueBoosterEngagementLevel": 1,
 
 		"TournamentBoosterLevel": 1,
@@ -52,9 +51,6 @@
 		"SparingBoosterLevel": 1,
 		"SparingBoosterEngagementLevel": 5
 	},
-
-	"GetFreeStarter": true,
-	"GetFreeStarterEvent": true,
 
 	"CleanMailBox": true,
 	"AutoGetCardPack": true,
@@ -77,5 +73,17 @@
 		"AugmentItemType": "epic",
 		"ExchangeBoosters": false,
 		"BoosterId": 5
+	},
+
+	"Startup": {
+		"UseStartupProcedure": false,
+		"EnchantItem": true,
+		"EnchantItemId": 1234567,
+		"EnchantLevel": 10,
+		"EnchantAttempts": 20,
+		"AugmentItem": true,
+		"AugmentItemId": 1234567,
+		"AugmentAttempts": 10,
+		"AugmentItemType": "epic"
 	}
 }

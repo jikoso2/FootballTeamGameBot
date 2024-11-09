@@ -12,7 +12,7 @@ The user can use several accounts on many servers in parallel.
 
 ## Guide
 Prepare to using application:
-* Download all files (.exe and configurations + trickFile) - https://github.com/jikoso2/FootballTeamGameBot/tree/main/ExeFile
+* Download all files (.exe and configurations) - https://github.com/jikoso2/FootballTeamGameBot/tree/main/ExeFile
 * Rename configurationx.json.template to configuration{x}.json (where {x} is a number, default : 1)
 
   ![image](https://github.com/jikoso2/FootballTeamGameBot/assets/69644118/a02f858c-be51-44d1-ad41-5142a4ab7bb5)
@@ -75,14 +75,26 @@ To find fingerprint you have to press F12 and log-in, find 'login' request in Fe
 Available skills: 
 condition, defensive, pressing, efficacy, freekicks, offensive, playmaking, reading
 
-Available tricks:
-in order (przewrotka, przerzutka, zonglerka, crossover, nozyce, pietka, rabona, ruletka, wolej, zwod, podcinka, elastico, kopniecie, hokus, xover)
+Available item tiers: 
+epic, legendary, platinum, diamond, historical
 
 AutoTraining:
 In the basic version app training all skills under 100level in the same proportions:
 "Specialize": false
 Using specialize you can train only one skill with two specializations (first,second,third,fourth)
 Using Bot - you can use automatic 5 minutes trainings (good if you have bottraining booster)
+
+#### StartupProcedure
+You can perform some actions one-time when you first turn on the bot (helpful in various tasks). You provide all the necessary information in the startup section:
+* UseStartupProcedure (1 try per hour)
+* EnchantItem - true/false on/off
+* EnchantItemId - item id
+* EnchantLevel - goal level to enchant
+* EnchantAttempts - number of enchant attempts
+* AugmentItem - true/false on/off
+* AugmentItemId - item id
+* AugmentAttempts - number of augment attempts
+* AugmentItemType - item type (epic,legendary,platinum,diamond,historical)
 
 #### Bet Manager
 Select matches to bet:
@@ -112,7 +124,7 @@ You can modify configuration during runtime application.
 
 ## Technologies
 
-* .NET Core 6
+* .NET Core 8
 
 ![image](https://user-images.githubusercontent.com/69644118/233805567-ca400c8b-892e-485e-aa44-9a9de58adb1c.png)
 

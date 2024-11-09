@@ -13,9 +13,9 @@ var FtpApi = new FTPApi(RuntimeProps.Server, Configuration);
 FtpApi.Login(RuntimeProps.Email, RuntimeProps.Password, RuntimeProps.FingerPrint);
 
 
-if(RuntimeProps.Startup.UseStartupProcedure)
+if (RuntimeProps.Startup.UseStartupProcedure)
 {
-	if(RuntimeProps.Startup.EnchantItem && RuntimeProps.Startup.EnchantItemId != 0 && RuntimeProps.Startup.EnchantLevel != 0 && RuntimeProps.Startup.EnchantAttempts != 0)
+	if (RuntimeProps.Startup.EnchantItem && RuntimeProps.Startup.EnchantItemId != 0 && RuntimeProps.Startup.EnchantLevel != 0 && RuntimeProps.Startup.EnchantAttempts != 0)
 	{
 		Logger.LogD($"Enchanting start, goal level: {RuntimeProps.Startup.EnchantLevel}, attempts: {RuntimeProps.Startup.EnchantAttempts}", "BOT-STARTUP");
 
@@ -123,10 +123,10 @@ while (true)
 	if (RuntimeProps.TargetEuro > accountState.Euro && RuntimeProps.JobType >= 1 && RuntimeProps.JobType <= 9 && accountState.Job.Queue == null)
 		SomethingDoneInLoop |= FtpApi.StartJob(RuntimeProps.JobType);
 
-	if ((DateTime.UtcNow.Hour >= 17 && DateTime.UtcNow.Hour < 23) && accountState.FightId == 0 && accountState.RankedDuels < RuntimeProps.RankedDuels)
+	if ((DateTime.UtcNow.Hour + GetDuelHourDifference() >= 18) && accountState.FightId == 0 && accountState.RankedDuels < RuntimeProps.RankedDuels)
 		SomethingDoneInLoop |= FtpApi.AssignToCardDuel(accountState.DuelsDeck);
 
-	if (DateTime.UtcNow.Hour < 17 && accountState.FightId == 0 && accountState.QuickDuels < RuntimeProps.QuickDuels)
+	if (DateTime.UtcNow.Hour + GetDuelHourDifference() < 18 && accountState.FightId == 0 && accountState.QuickDuels < RuntimeProps.QuickDuels)
 		SomethingDoneInLoop |= FtpApi.AssignToCardDuel(accountState.DuelsDeck);
 
 	if (accountState.FightId != 0)
@@ -416,4 +416,19 @@ public partial class Program
 	}
 
 	public static DateTime GetNowServerDataTime(TimeZoneInfo timeZone) => TimeZoneInfo.ConvertTime(DateTime.Now, timeZone);
+
+	public static int GetDuelHourDifference()
+	{
+		switch (RuntimeProps.Server)
+		{
+			case "classic":
+				return 0;
+			case "s1":
+				return -1;
+			case "pl":
+				return -2;
+			default:
+				return 0;
+		}
+	}
 }

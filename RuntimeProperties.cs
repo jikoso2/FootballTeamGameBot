@@ -315,6 +315,13 @@ namespace FootballteamBOT
 
 			private string augmentItemType = String.Empty;
 			public string AugmentItemType { get => augmentItemType; set => SetField(ref augmentItemType, value); }
+
+
+			private bool openEnergyPacks;
+			public bool OpenEnergyPacks { get => openEnergyPacks; set => SetField(ref openEnergyPacks, value); }
+
+			private int openEnergyPackAmount;
+			public int OpenEnergyPackAmount { get => openEnergyPackAmount; set => SetField(ref openEnergyPackAmount, value); }
 		}
 	}
 }

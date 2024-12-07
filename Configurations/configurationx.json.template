@@ -84,6 +84,8 @@
 		"AugmentItem": true,
 		"AugmentItemId": 1234567,
 		"AugmentAttempts": 10,
-		"AugmentItemType": "epic"
+		"AugmentItemType": "epic",
+		"OpenEnergyPacks": true,
+		"OpenEnergyPackAmount": 20
 	}
 }

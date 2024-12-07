@@ -42,6 +42,17 @@ if (RuntimeProps.Startup.UseStartupProcedure)
 		}
 	}
 
+	if (RuntimeProps.Startup.OpenEnergyPacks && RuntimeProps.Startup.OpenEnergyPackAmount != 0)
+	{
+		Logger.LogD($"Open energy packs start, amount: {RuntimeProps.Startup.OpenEnergyPackAmount}", "BOT-STARTUP");
+
+		for (int i = 0; i < RuntimeProps.Startup.OpenEnergyPackAmount; i++)
+		{
+			FtpApi.OpenEnergeticPack(1);
+			Thread.Sleep(1500);
+		}
+	}
+
 	Logger.LogD("Wykonałeś procedure startującą, jeśli chcesz uruchomić BOTa w normalnym trybie przestaw flage UseStartupProcedure na false", "BOT-STARTUP");
 	Console.ReadLine();
 	System.Environment.Exit(0);
@@ -400,6 +411,9 @@ public partial class Program
 				RuntimeProps.Startup.AugmentItemId = runtimePropsFromConfig.Startup.AugmentItemId;
 				RuntimeProps.Startup.AugmentItemType = runtimePropsFromConfig.Startup.AugmentItemType;
 				RuntimeProps.Startup.AugmentAttempts = runtimePropsFromConfig.Startup.AugmentAttempts;
+
+				RuntimeProps.Startup.OpenEnergyPacks = runtimePropsFromConfig.Startup.OpenEnergyPacks;
+				RuntimeProps.Startup.OpenEnergyPackAmount = runtimePropsFromConfig.Startup.OpenEnergyPackAmount;
 
 				//RuntimeProps.Startup.OpenPackages = runtimePropsFromConfig.Startup.OpenPackages;
 			}

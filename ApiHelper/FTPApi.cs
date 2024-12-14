@@ -199,6 +199,7 @@ namespace FootballteamBOT.ApiHelper
 					accountState.Packs.Gold = packsGetResponse.Packs.Gold;
 					accountState.Packs.Silver = packsGetResponse.Packs.Silver;
 					accountState.Packs.Card = packsGetResponse.Packs.Cards_locked;
+					accountState.Packs.CardGolden = packsGetResponse.Packs.Cards_new_locked;
 					accountState.Packs.FreeKeys = packsGetResponse.Free_keys;
 					accountState.Packs.PremiumKeys = packsGetResponse.Keys;
 					accountState.Packs.KeyMultiplier = packsGetResponse.Key_multiplier;
@@ -1164,14 +1165,15 @@ namespace FootballteamBOT.ApiHelper
 			}
 		}
 
-		public bool OpenCardPacks(int amount)
+		public bool OpenCardPacks(int amount, bool isGoldenCardPack = false)
 		{
 			var opName = "OPEN-CARD-PACKS";
+			var cardPackType = isGoldenCardPack ? "cards_new_locked" : "cards_locked";
 			try
 			{
 				for (int i = 0; i < amount; i++)
 				{
-					var packRequest = new { type = "cards_locked", amount = 1 };
+					var packRequest = new { type = cardPackType, amount = 1 };
 					var result = SendSpecPostReq($"{FTPEndpoint}/character/cards/open", packRequest);
 
 					var openCardResponse = DeserializeJson<OpenCardResponse>(result.Item1);

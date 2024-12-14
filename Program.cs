@@ -128,6 +128,9 @@ while (true)
 	if (RuntimeProps.AutoOpenCardPacks && accountState.Packs.Card > 0)
 		SomethingDoneInLoop |= FtpApi.OpenCardPacks(accountState.Packs.Card);
 
+	if (RuntimeProps.AutoOpenCardPacks && accountState.Packs.CardGolden > 0)
+		SomethingDoneInLoop |= FtpApi.OpenCardPacks(accountState.Packs.CardGolden, true);
+
 	if (RuntimeProps.Team.AutoSparingSignUp)
 		SomethingDoneInLoop |= FtpApi.SparingSignUp(accountState);
 

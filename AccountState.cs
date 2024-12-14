@@ -56,6 +56,7 @@ namespace FootballteamBOT
 			public int Energy { get; set; }
 			public int KeyMultiplier { get; set; }
 			public int Card { get; set; }
+			public int CardGolden { get; set; }
 		}
 
 		public class JobState

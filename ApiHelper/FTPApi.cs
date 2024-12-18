@@ -194,12 +194,12 @@ namespace FootballteamBOT.ApiHelper
 					var packsResponse = SendGetReq($"{FTPEndpoint}/character/packs");
 					var packsGetResponse = DeserializeJson<PacksResponse>(packsResponse);
 
-					accountState.Packs.Bronze = packsGetResponse.Packs.Bronze;
-					accountState.Packs.Energy = packsGetResponse.Packs.Energetic_locked;
-					accountState.Packs.Gold = packsGetResponse.Packs.Gold;
-					accountState.Packs.Silver = packsGetResponse.Packs.Silver;
-					accountState.Packs.Card = packsGetResponse.Packs.Cards_locked;
-					accountState.Packs.CardGolden = packsGetResponse.Packs.Cards_new_locked;
+					accountState.Packs.Bronze = packsGetResponse.Packs.Bronze.Amount;
+					accountState.Packs.Energy = packsGetResponse.Packs.Energetic_locked.Amount;
+					accountState.Packs.Gold = packsGetResponse.Packs.Gold.Amount;
+					accountState.Packs.Silver = packsGetResponse.Packs.Silver.Amount;
+					accountState.Packs.Card = packsGetResponse.Packs.Cards_locked.Amount;
+					accountState.Packs.CardGolden = packsGetResponse.Packs.Cards_new_locked.Amount;
 					accountState.Packs.FreeKeys = packsGetResponse.Free_keys;
 					accountState.Packs.PremiumKeys = packsGetResponse.Keys;
 					accountState.Packs.KeyMultiplier = packsGetResponse.Key_multiplier;

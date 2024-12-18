@@ -144,18 +144,23 @@ namespace FootballteamBOT.ApiHelper
 
 		public class PacksResponse
 		{
-			public PackEntity Packs { get; set; } = new();
+			public PacksEntity Packs { get; set; } = new();
 			public int Keys { get; set; }
 			public int Free_keys { get; set; }
 			public int Key_multiplier { get; set; }
+			public class PacksEntity
+			{
+				public PackEntity Bronze { get; set; } = new();
+				public PackEntity Energetic_locked { get; set; } = new();
+				public PackEntity Gold { get; set; } = new();
+				public PackEntity Silver { get; set; } = new();
+				public PackEntity Cards_locked { get; set; } = new();
+				public PackEntity Cards_new_locked { get; set; } = new();
+			}
+
 			public class PackEntity
 			{
-				public int Bronze { get; set; }
-				public int Energetic_locked { get; set; }
-				public int Gold { get; set; }
-				public int Silver { get; set; }
-				public int Cards_locked { get; set; }
-				public int Cards_new_locked { get; set; }
+				public int Amount { get; set; }
 			}
 		}
 
